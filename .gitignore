@@ -30,3 +30,14 @@ venv/
 
 # SDD / VKF scratch areas
 wip/
+
+# OpenClaw runtime state
+.openclaw/
+
+# OpenClaw agent definition files (auto-generated)
+AGENTS.md
+HEARTBEAT.md
+IDENTITY.md
+SOUL.md
+TOOLS.md
+USER.md
