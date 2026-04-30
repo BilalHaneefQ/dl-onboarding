@@ -35,7 +35,7 @@ knowledge_types:
     governance: none
 
 # Initialization (set by /vkf/init)
-initialized_at: null
+initialized_at: "2026-04-30T11:20:00Z"
 advanced_tier: false
 
 # Last validation run (set by /vkf/validate)
