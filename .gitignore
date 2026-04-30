@@ -34,6 +34,9 @@ wip/
 # OpenClaw runtime state
 .openclaw/
 
+# ClawHub cache
+.clawhub/
+
 # OpenClaw agent definition files (auto-generated)
 AGENTS.md
 HEARTBEAT.md
