@@ -2,7 +2,7 @@
 
 > Part of the **Omnio** Product Constitution
 
-**Last amended:** 2026-04-30
+**Last amended:** 2026-04-30 (C0 — added architecture links in Design Tenets 1 & 2)
 
 ---
 
@@ -28,8 +28,8 @@
 
 ## Design Tenets
 
-1. **Human-in-the-loop for all writes**: Read operations may proceed unconfirmed; any write (send, create, update, delete) requires a confirmation step.
-2. **One interface, all tools**: The Discord DM is the only surface. The agent handles routing — the user should never need to know which Google API is involved.
+1. **Human-in-the-loop for all writes**: Read operations may proceed unconfirmed; any write (send, create, update, delete) requires a confirmation step. (Architecture: see [specialist agent design](../../Ideation/03-architecture.md#agent-breakdown))
+2. **One interface, all tools**: The [Discord DM](../../Ideation/03-architecture.md#high-level-overview) is the only surface. The agent handles routing — the user should never need to know which Google API is involved.
 3. **Graceful ambiguity**: When a request could mean multiple things, surface the options rather than picking one. Clarity > efficiency.
 4. **Fail visibly**: If an API call fails, the agent tells the user what failed and why in plain language. No silent failures.
 

@@ -2,7 +2,7 @@
 
 > Part of the **Omnio** Product Constitution
 
-**Last amended:** 2026-04-30
+**Last amended:** 2026-04-30 (C1 — added quantitative evidence targets for Day 10 validation)
 
 ---
 
@@ -12,7 +12,7 @@
 
 ## Customer
 
-Disrupt Labs professionals who use Gmail, Google Calendar, and Google Meet daily and operate under time pressure throughout the workday.
+Disrupt Labs professionals who use Gmail, Google Calendar, and Google Meet daily and operate under time pressure throughout the workday. See [Personas](personas.md) for the full primary user profile.
 
 ## Problem
 
@@ -24,9 +24,16 @@ A multi-agent AI system controlled entirely through a Discord DM. An orchestrato
 
 ## Evidence
 
+**Infrastructure signals (current):**
 - **Day 2 of POC**: Gmail reading via Discord DM confirmed working (see [`Ideation/07-timeline.md`](../../Ideation/07-timeline.md))
 - **Architecture validated**: OpenClaw delegate node routing between Email and Calendar/Meet agents is functioning
 - **Channel validated**: Discord Bot API resolves all timing issues that made WhatsApp unviable (408 timeouts, cold-start delays)
+
+**Validation targets (fill in after Timeline Day 10):**
+- End-to-end completion: `__/__ DL testers completed all 3 scenarios without errors`
+- Time comparison: `Omnio avg __ min vs. manual app-switching avg __ min per task`
+- Confirmation overhead: `__ % of tasks required >1 clarifying exchange before execution`
+- Error/abort rate: `__ % of attempts abandoned or resulted in wrong action`
 
 ## Key Assumptions
 

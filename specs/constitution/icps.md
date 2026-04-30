@@ -3,7 +3,7 @@
 > Part of the **Omnio** Product Constitution
 > **Tier:** Extended — adopted at POC stage to define the internal validation cohort; expand when moving beyond Disrupt Labs.
 
-**Last amended:** 2026-04-30
+**Last amended:** 2026-04-30 (C1 — scoped post-POC ICP as DL-internal, removed commercial budget row, deferred monetization)
 
 ---
 
@@ -34,16 +34,18 @@ Must have:
 
 ---
 
-## ICP: Small Team Professional (Post-POC Target)
+## ICP: Small Team Professional (Post-POC Target — DL Internal Expansion)
+
+> **Scope note:** Omnio is a free internal Disrupt Labs tool. This ICP represents the expanded internal audience post-POC validation, not a commercial customer. Monetization decisions are deferred until after POC results are evaluated.
 
 | Attribute | Detail |
 |-----------|--------|
-| **Company Size** | 5–50 people |
+| **Company Size** | 5–50 people (DL teams and affiliates) |
 | **Industry** | Technology, consulting, creative agencies |
 | **Tech Maturity** | Mainstream adopter — comfortable with SaaS, OAuth consent screens; not necessarily technical |
-| **Annual Budget** | $0–$20/month per user (aligned with VPS hosting cost) |
-| **Buying Trigger** | Word of mouth from early adopters; productivity pain with Gmail + Calendar context switching |
-| **Decision Maker** | Individual user (bottom-up adoption) |
+| **Distribution** | Internal invite — no commercial acquisition |
+| **Buying Trigger** | Word of mouth from POC testers; productivity pain with Gmail + Calendar context switching |
+| **Decision Maker** | Individual user (bottom-up adoption within DL) |
 | **Champion** | Power user on the team who sets up the bot for others |
 
 ### Qualification Criteria

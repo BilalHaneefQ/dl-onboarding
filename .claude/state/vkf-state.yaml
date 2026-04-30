@@ -67,7 +67,10 @@ stale_specs: []
 last_ingestion: null
 total_ingestions: 0
 
-last_gap_scan: null
+last_gap_scan: "2026-04-30T11:30:00Z"
+last_gap_scope: "all"
+gaps_found: 6
+gaps_filtered: 0
 known_unknowns: []
 gap_suppressions: []
 

@@ -3,7 +3,7 @@
 > Part of the **Omnio** Product Constitution
 > **Tier:** Extended — adopted to articulate how Omnio differs from existing productivity AI tools as the POC moves toward product.
 
-**Last amended:** 2026-04-30
+**Last amended:** 2026-04-30 (C1 — added moat revisit trigger; expanded Category section)
 
 ---
 
@@ -28,9 +28,15 @@ At POC stage, the moat is thin. Potential defensibility as the product matures:
 2. **Specialist agent quality**: The Email and Calendar agents are tuned specifically for their domain — better context awareness per domain than a single general-purpose agent.
 3. **OpenClaw multi-tenant architecture**: Per-user container isolation via `openclaw-multitenant` gives a clear path to scaling without rebuilding the agent layer.
 
+**Revisit trigger:** Evaluate moat depth when ≥5 users reach >30 days of active use. If retention holds at that point, prioritize moat #1 (OAuth switching cost) by investing in email draft style personalization — the agent learning each user's tone and phrasing over time.
+
 ## Category
 
-**Personal productivity automation via conversational AI** — specifically the subcategory of "AI agents that control productivity tools through a chat interface the user already uses."
+Omnio enters the existing **"AI productivity assistant"** category but carves a specific wedge: specialist-agent-per-domain, confirmation-first, and living in the channel the team already uses rather than requiring a separate app. Unlike general assistants (ChatGPT) that require switching context, or automation tools (Zapier) that execute silently on triggers, Omnio is interactive and domain-aware.
+
+In a buyer conversation: *"It's like having an AI chief of staff in your Discord that handles your inbox and calendar — but confirms everything before acting."*
+
+We are entering an existing category (AI productivity assistants) rather than creating a new one, with a defensible wedge: specialist agents + confirmation loop + living inside Discord.
 
 ---
 
