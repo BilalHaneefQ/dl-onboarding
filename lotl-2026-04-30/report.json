@@ -1,0 +1,45 @@
+{
+  "run_date": "2026-04-30",
+  "repos_analyzed": 1,
+  "repos_failed": 0,
+  "repos": {
+    "dl-onboarding": {
+      "metadata": {
+        "repo_url": "https://github.com/BilalHaneefQ/dl-onboarding",
+        "repo_name": "dl-onboarding",
+        "default_branch": "main",
+        "analyzed_at": "2026-04-30T11:03:00Z",
+        "commit_sha": "d463b46e268e8b42ca63338489d05bea202f7b04"
+      },
+      "developer_tools": {
+        "languages": ["Python 3.12", "Markdown"],
+        "package_managers": [],
+        "formatting_linting": ["EditorConfig"],
+        "test_frameworks": [],
+        "ci_cd": ["GitHub Actions"],
+        "cloud_providers": [],
+        "observability": ["Claude Code Hooks (27 hooks)"]
+      },
+      "ai_capabilities": {
+        "llm_orchestration": ["OpenClaw v2026.4.26"],
+        "llm_models": ["Anthropic Claude Sonnet 4.6"],
+        "agent_frameworks": ["OpenClaw delegate nodes", "Discord Bot API"],
+        "mcp_tools": ["Claude Code (.claude/) — 21 commands, 4 skills, 3 agents"],
+        "agent_architecture_type": "multi-agent",
+        "memory": ["short-term (Discord session)", "long-term (Google OAuth2 tokens)", "session-based (Discord user ID)", "project-based (.claude/state/)"]
+      },
+      "specs_documentation": {
+        "spec_directories": ["specs/", "docs/", "changes/", "archive/", "Ideation/"],
+        "specs_first_workflow": "specs-first",
+        "doc_to_code_ratio": 126.0,
+        "hotfix_rate": 0.0,
+        "rollback_rate": 0.0
+      }
+    }
+  },
+  "cross_repo_summary": {
+    "shared_technologies": [],
+    "divergent_technologies": [],
+    "overall_maturity": "Template stage — documentation and toolchain in place, no application code yet. Venture (Omnio) ideation complete; awaiting VKF bootstrap and first SDD cycle."
+  }
+}

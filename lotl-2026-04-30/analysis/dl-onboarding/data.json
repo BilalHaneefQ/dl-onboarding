@@ -1,0 +1,278 @@
+{
+  "metadata": {
+    "repo_url": "https://github.com/BilalHaneefQ/dl-onboarding",
+    "repo_name": "dl-onboarding",
+    "default_branch": "main",
+    "analyzed_at": "2026-04-30T11:03:00Z",
+    "commit_sha": "d463b46e268e8b42ca63338489d05bea202f7b04"
+  },
+  "developer_tools": {
+    "development_environment": {
+      "languages": [
+        {
+          "name": "Python",
+          "evidence": ".github/scripts/validate-std002.py, .claude/hooks/scripts/hooks.py",
+          "version": "3.12"
+        },
+        {
+          "name": "Markdown",
+          "evidence": "126 .md files throughout the repository",
+          "version": null
+        }
+      ],
+      "package_managers": [],
+      "formatting_linting": [
+        {
+          "name": "EditorConfig",
+          "evidence": ".editorconfig referenced in .gitignore",
+          "version": null
+        }
+      ]
+    },
+    "code_quality_testing": {
+      "test_frameworks": [],
+      "coverage_tools": [
+        {
+          "name": "coverage (Python)",
+          "evidence": "coverage/ in .gitignore Python section",
+          "version": null
+        }
+      ],
+      "static_analysis": [
+        {
+          "name": "STD-002 Structural Validator",
+          "evidence": ".github/scripts/validate-std002.py — checks VKF layout, [REQUIRED] placeholders, command files",
+          "version": null
+        }
+      ]
+    },
+    "source_control": {
+      "platform": "GitHub",
+      "repo_strategy": "single-repo",
+      "branching_strategy": "trunk-based (main only, feature commits directly)",
+      "pr_policies": {
+        "codeowners": true,
+        "pr_template": false,
+        "evidence": ".github/CODEOWNERS with @salmanulhaq-dl @ilian-disrupt @mobeendisrupt as required reviewers"
+      }
+    },
+    "ci_cd": {
+      "tools": [
+        {
+          "name": "GitHub Actions",
+          "evidence": ".github/workflows/validate-std002.yml — triggers on PR and push to main; runs Python 3.12 STD-002 structural validation",
+          "version": null
+        }
+      ],
+      "feature_flags": [],
+      "ab_testing": []
+    },
+    "infrastructure": {
+      "cloud_providers": [],
+      "containerization": [],
+      "serverless": [],
+      "iac_tools": [],
+      "config_management": [
+        {
+          "name": "dotenv",
+          "evidence": ".env and .env.*.local patterns in .gitignore; .claude/hooks monitors .envrc|.env|.env.local",
+          "version": null
+        }
+      ],
+      "environments": [
+        {
+          "name": "Development",
+          "evidence": ".env.local and .env.*.local in .gitignore",
+          "version": null
+        }
+      ]
+    },
+    "observability": {
+      "logging": [
+        {
+          "name": "Claude Code Hook-based Event Logging",
+          "evidence": ".claude/hooks/scripts/hooks.py — 27 hooks including PreToolUse, PostToolUse, PermissionRequest, Stop, SubagentStop",
+          "version": null
+        }
+      ],
+      "metrics_monitoring": [],
+      "error_tracking": []
+    },
+    "data_messaging": {
+      "etl_elt": [],
+      "data_orchestration": [],
+      "message_queues": [],
+      "task_queues": [],
+      "job_schedulers": [],
+      "cron_schedulers": [],
+      "background_workers": []
+    }
+  },
+  "ai_capabilities": {
+    "ai_development_stack": {
+      "llm_orchestration": [
+        {
+          "name": "OpenClaw",
+          "evidence": ".openclaw/workspace-state.json, skills/gog/SKILL.md, Ideation/04-tech-stack.md",
+          "version": "2026.4.26"
+        }
+      ],
+      "llm_models": [
+        {
+          "name": "Anthropic Claude Sonnet 4.6",
+          "evidence": "LEARNINGS.md, Ideation docs, claude-cli runtime referenced in OpenClaw config",
+          "version": "claude-sonnet-4-6"
+        }
+      ],
+      "prompt_management": [],
+      "vector_databases": [],
+      "agent_frameworks": [
+        {
+          "name": "OpenClaw delegate node system",
+          "evidence": "Ideation/03-architecture.md — multi-agent routing via delegate nodes",
+          "version": null
+        },
+        {
+          "name": "Discord Bot API",
+          "evidence": "Ideation/01-project-overview.md, Ideation/04-tech-stack.md — Discord DM as orchestration surface",
+          "version": null
+        }
+      ],
+      "state_machines": [],
+      "mcp_tools": [
+        {
+          "name": "Claude Code (.claude/ configuration)",
+          "evidence": ".claude/ directory with commands/, skills/, agents/, hooks/, state/",
+          "version": null
+        },
+        {
+          "name": "Claude Code Hooks Infrastructure",
+          "evidence": ".claude/hooks/scripts/hooks.py — PreToolUse, PostToolUse, PermissionRequest, PostToolUseFailure, Stop, SubagentStop",
+          "version": null
+        }
+      ],
+      "agent_architecture_type": "multi-agent"
+    },
+    "memory_architecture": {
+      "short_term": {
+        "detected": true,
+        "implementations": [
+          { "name": "Discord session context", "evidence": "Ideation/02-user-scenarios.md — per-DM conversation context", "version": null },
+          { "name": "OpenClaw delegate node state passing", "evidence": "Ideation/03-architecture.md", "version": null }
+        ],
+        "description": "Conversation context within Discord DM sessions; state passed between agents via OpenClaw delegate nodes"
+      },
+      "long_term": {
+        "detected": true,
+        "implementations": [
+          { "name": "Google OAuth2 tokens", "evidence": "Ideation/04-tech-stack.md — persisted per-user tokens for Gmail/Calendar/Meet APIs", "version": null }
+        ],
+        "description": "Per-user Google OAuth2 tokens persisted in isolated agent containers for Gmail, Calendar, and Meet API access"
+      },
+      "session_based": {
+        "detected": true,
+        "implementations": [
+          { "name": "Discord user ID session tracking", "evidence": "Ideation/01-project-overview.md — user identity based on Discord user ID", "version": null }
+        ],
+        "description": "Session state tracked by Discord Bot API DMs; user identity scoped to Discord user ID"
+      },
+      "project_based": {
+        "detected": true,
+        "implementations": [
+          { "name": "VKF state", "evidence": ".claude/state/vkf-state.yaml", "version": null },
+          { "name": "SDD state", "evidence": ".claude/state/sdd-state.yaml", "version": null },
+          { "name": "Claude Code project memory", "evidence": "AGENTS.md, SOUL.md — workspace identity and memory files", "version": null }
+        ],
+        "description": "Claude Code project-scoped configuration and state; VKF/SDD cycle tracking persisted in .claude/state/"
+      },
+      "knowledge_graphs": {
+        "detected": false,
+        "implementations": [],
+        "description": null
+      }
+    }
+  },
+  "specs_documentation": {
+    "specification_presence": {
+      "spec_directories": [
+        { "name": "specs/", "evidence": "specs/constitution/ and specs/features/ subdirectories", "file_count": 3 },
+        { "name": "docs/", "evidence": "docs/onboarding/ (6 modules) and docs/standards/ (STD-001, STD-002, STD-003)", "file_count": 30 },
+        { "name": "changes/", "evidence": "Active SDD cycles directory", "file_count": 1 },
+        { "name": "archive/", "evidence": "Completed SDD cycles", "file_count": 1 },
+        { "name": "backlog/", "evidence": "backlog/items.yaml — work queue", "file_count": 1 },
+        { "name": "Ideation/", "evidence": "8 project ideation documents for Omnio", "file_count": 8 }
+      ],
+      "product_requirements": {
+        "detected": true,
+        "files": [
+          "Ideation/01-project-overview.md",
+          "Ideation/02-user-scenarios.md",
+          "Ideation/05-costs.md",
+          "Ideation/07-timeline.md",
+          "Ideation/08-scaling-plan.md"
+        ],
+        "description": "Omnio POC requirements covering user scenarios (Email, Calendar, Meet agents), cost analysis, and timeline"
+      },
+      "architecture_docs": {
+        "detected": true,
+        "files": [
+          "Ideation/03-architecture.md",
+          "Ideation/04-tech-stack.md",
+          "Ideation/06-google-cloud-setup.md"
+        ],
+        "description": "Architecture: Discord orchestrator + OpenClaw delegate nodes + specialist agents (Email, Calendar, Meet) + Google APIs"
+      }
+    },
+    "specs_driven_development": {
+      "specs_first_workflow": {
+        "assessment": "specs-first",
+        "evidence": [
+          "CLAUDE.md explicitly mandates SDD workflow with /sdd:start → /sdd:implement → /sdd:complete",
+          "specs/ directory with constitution/ and features/ must be bootstrapped before feature cycles",
+          "Ideation/ documentation created before any implementation cycles",
+          "changes/ holds active spec-delta.md files before implementation",
+          "archive/ preserves completed cycles as historical record"
+        ],
+        "description": "Repository enforces STD-001 Spec-Driven Development — all behavior changes require an active cycle with spec-delta.md before any implementation"
+      },
+      "spec_driven_pr_patterns": {
+        "detected": true,
+        "evidence": [
+          "CLAUDE.md: behavior changes require active cycle in changes/{slug}/ or /sdd:start",
+          "Commit conventions: [spec] for spec changes, [impl] for code, [archive] for cycle archival",
+          "CODEOWNERS requires @salmanulhaq-dl @ilian-disrupt @mobeendisrupt review on all PRs",
+          "CI workflow validates STD-002 compliance on every PR"
+        ],
+        "description": "All behavior-changing features must have spec-delta before implementation; CODEOWNERS enforces review; CI validates structural compliance"
+      }
+    },
+    "process_quality_metrics": {
+      "hotfix_rate": {
+        "value": 0.0,
+        "hotfix_count": 0,
+        "total_commits": 6,
+        "methodology": "git branch/tag/commit analysis"
+      },
+      "rollback_rate": {
+        "value": 0.0,
+        "rollback_count": 0,
+        "total_commits": 6,
+        "methodology": "git revert/rollback commit analysis"
+      },
+      "pr_cycle_time": {
+        "average_hours": null,
+        "average_time_to_first_review_hours": null,
+        "sample_size": 0,
+        "methodology": "GitHub API PR analysis",
+        "note": "Not available — GitHub CLI not installed in this environment"
+      },
+      "documentation_coverage": {
+        "doc_to_code_ratio": 126.0,
+        "doc_files": 126,
+        "code_files": 1,
+        "doc_commit_ratio": null,
+        "methodology": "File count via find; code files = Python scripts only (template has no application code yet)"
+      }
+    }
+  }
+}
