@@ -148,18 +148,19 @@ Would you like to reply?
 
 **Thread summarization** (apply when thread body exceeds 2000 words OR more than 10 messages):
 
-1. Fetch only the last 2 messages in full: `gog mail get {latestMessageId} -j --results-only`
-2. For older messages, use the `snippet` field from the search results (already fetched — no extra API call needed)
-3. Prepend a summary block before the full messages:
+1. Fetch the last 5 message IDs from the thread (use `gog mail search "threadId:{threadId}" -j --results-only` to get all, take last 5)
+2. Fetch each of those 5 messages in full via `gog mail get {messageId} -j --results-only`
+3. For older messages (beyond the 5), use the `snippet` field — no extra API call needed
+4. Prepend a summary block before the full messages:
    ```
    [Thread is long — earlier context summarized]
-   • 8 older messages from Mar–Apr 2026
-   • Key topics: project timeline, budget approval, stakeholder sign-off
+   • N older messages from {date range}
+   • Key topics: {brief topic summary from snippets}
    
-   Most recent exchange:
-   [last 2 messages in full]
+   Most recent 5 messages:
+   [last 5 messages in full]
    ```
-4. Tell the user: "Thread is long — I've summarized older messages for context."
+5. Tell the user: "Thread is long — I've summarized older messages for context."
 
 **Single-message thread** (no prior context): show full body directly, no summary needed.
 

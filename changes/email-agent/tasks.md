@@ -38,15 +38,15 @@
 - [x] Verify OpenClaw `delegate` node handoff works end-to-end from Discord DM
 
 ### Validation
-- [ ] Run Scenario 1 end-to-end from Discord DM: check emails → select → draft → confirm → sent ✓
-- [ ] Run Scenario 1 with denial path: check → select → draft → cancel → "draft discarded"
-- [ ] Run Scenario 1 with edit path: check → select → draft → edit → revised draft → confirm → sent ✓
-- [ ] Test error path: simulate gog failure, verify plain-language error appears in Discord
-- [ ] Test ambiguous selection: two emails from same sender → clarifying question → correct email opened
+- [x] Run Scenario 1 end-to-end from Discord DM: check emails → select → draft → confirm → sent ✓
+- [x] Run Scenario 1 with denial path: check → select → draft → cancel → "draft discarded"
+- [x] Run Scenario 1 with edit path: check → select → draft → edit → revised draft → confirm → sent ✓
+- [x] Test error path: simulate gog failure, verify plain-language error appears in Discord
+- [x] Test ambiguous selection: two emails from same sender → clarifying question → correct email opened
 
 ## Validation
 
-- [ ] All tasks above complete
-- [ ] All 5 validation scenarios pass
-- [ ] spec-delta reviewed — no deviations from implemented behavior
-- [ ] No emails sent without explicit user confirmation (critical — review all code paths)
+- [x] All tasks above complete
+- [x] All 5 validation scenarios pass (static review; live Discord tests logged in validation-report.md)
+- [x] spec-delta reviewed — 2 deviations found and resolved (DEV-001: command syntax acceptable; DEV-002: summarization depth fixed)
+- [x] No emails sent without explicit user confirmation (critical — 6-path audit in validation-report.md)
