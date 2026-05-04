@@ -3,8 +3,8 @@
 ## Implementation Checklist
 
 ### Setup
-- [ ] Verify `gog mail` subcommand availability and output format (`gog mail --help`, `gog mail list --unread`)
-- [ ] Document exact gog mail command signatures needed: list, get, send
+- [x] Verify `gog mail` subcommand availability and output format (`gog mail --help`, `gog mail list --unread`)
+- [x] Document exact gog mail command signatures needed: list, get, send
 
 ### Agent Prompt
 - [ ] Write Email Agent system prompt: role definition, available tools (gog CLI), confirmation-first rules, tone
