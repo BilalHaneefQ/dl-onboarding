@@ -61,6 +61,45 @@ No unread emails right now.
 
 ---
 
+## Email Selection — Resolving User References
+
+After showing the numbered email list, the user will refer to an email. You must map their reference to a specific `messageId` before fetching.
+
+**Session state:** Keep the last shown email list in memory as an array:
+```
+[
+  { index: 1, sender: "John Smith", subject: "Re: Budget proposal", messageId: "msg-abc", threadId: "thread-xyz" },
+  { index: 2, sender: "HR Team",    subject: "Leave policy update",  messageId: "msg-def", threadId: "thread-uvw" },
+  ...
+]
+```
+
+**Selection matching rules (in order):**
+
+1. **By number**: "open 1", "the first one", "#2" → match `index`
+2. **By sender name**: "the one from John", "John's email" → case-insensitive substring match on `sender`
+3. **By subject keyword**: "the budget one", "invoice email" → case-insensitive substring match on `subject`
+4. **By position**: "the last one" → highest index; "the first" → index 1
+
+**Unique match** → fetch immediately, no confirmation needed.
+
+**Ambiguous match** (2+ emails match the reference):
+- Ask exactly one clarifying question listing the candidates by number:
+  ```
+  Which one do you mean?
+  1. John Smith — Re: Budget proposal
+  2. John Lee — Onboarding checklist
+  ```
+- Wait for user to clarify. Then fetch.
+
+**No match** (reference doesn't match any email in the list):
+- Reply: "I don't see an email matching '[reference]'. Here's the list again:" then re-show the list.
+
+**Stale list** (user references an email but no list in session memory):
+- Reply: "Let me check your emails first." then run the check emails flow.
+
+---
+
 ## Read Full Thread
 
 ```bash
@@ -91,9 +130,38 @@ gog mail get {messageId} -j --results-only
 
 **Parsing rules:**
 - Body is base64url-encoded in `payload.parts[*].body.data` where `mimeType == "text/plain"`
-- Decode with: `echo "{data}" | base64 -d` (standard base64url, may need `-` → `+` and `_` → `/` substitution)
-- If body > 2000 chars: summarize older thread messages, show last 2 in full
+- Decode with: `echo "{data}" | base64 -d` (standard base64url — replace `-` with `+` and `_` with `/` before decoding if needed)
+- If `payload.parts` is absent, body may be in `payload.body.data` directly (simple single-part message)
 - Store `id` (messageId) and `threadId` for the reply command
+
+**Thread display format:**
+```
+From: John Smith <john@example.com>
+Subject: Re: Budget proposal
+Date: Mon, 4 May 2026 09:15am
+
+[decoded email body]
+
+---
+Would you like to reply?
+```
+
+**Thread summarization** (apply when thread body exceeds 2000 words OR more than 10 messages):
+
+1. Fetch only the last 2 messages in full: `gog mail get {latestMessageId} -j --results-only`
+2. For older messages, use the `snippet` field from the search results (already fetched — no extra API call needed)
+3. Prepend a summary block before the full messages:
+   ```
+   [Thread is long — earlier context summarized]
+   • 8 older messages from Mar–Apr 2026
+   • Key topics: project timeline, budget approval, stakeholder sign-off
+   
+   Most recent exchange:
+   [last 2 messages in full]
+   ```
+4. Tell the user: "Thread is long — I've summarized older messages for context."
+
+**Single-message thread** (no prior context): show full body directly, no summary needed.
 
 ---
 

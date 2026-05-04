@@ -17,10 +17,10 @@
 - [x] Handle gog CLI error on list call — surface plain-language error to user
 
 ### Read Thread Flow
-- [ ] Implement email selection handler — accept number or name reference
-- [ ] Implement disambiguation prompt for ambiguous selections
-- [ ] Call `gog mail get {message-id}` and format thread for display
-- [ ] Implement thread summarization for long threads (>10 messages or >2000 words)
+- [x] Implement email selection handler — accept number or name reference
+- [x] Implement disambiguation prompt for ambiguous selections
+- [x] Call `gog mail get {message-id}` and format thread for display
+- [x] Implement thread summarization for long threads (>10 messages or >2000 words)
 
 ### Draft Reply Flow
 - [ ] Build LLM drafting prompt with thread context
