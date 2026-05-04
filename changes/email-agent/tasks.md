@@ -8,7 +8,7 @@
 
 ### Agent Prompt
 - [x] Write Email Agent system prompt: role definition, available tools (gog CLI), confirmation-first rules, tone
-- [ ] Register Email Agent in OpenClaw as a specialist agent with its own workspace
+- [x] Register Email Agent in OpenClaw as a specialist agent with its own workspace
 
 ### Check Emails Flow
 - [ ] Implement "check emails" intent handler — call `gog mail list --unread`, parse output
