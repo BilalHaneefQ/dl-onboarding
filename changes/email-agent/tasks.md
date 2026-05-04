@@ -11,10 +11,10 @@
 - [x] Register Email Agent in OpenClaw as a specialist agent with its own workspace
 
 ### Check Emails Flow
-- [ ] Implement "check emails" intent handler — call `gog mail list --unread`, parse output
-- [ ] Format unread list as numbered summary (sender, subject, time)
-- [ ] Handle zero unread emails gracefully: "No unread emails right now."
-- [ ] Handle gog CLI error on list call — surface plain-language error to user
+- [x] Implement "check emails" intent handler — call `gog mail list --unread`, parse output
+- [x] Format unread list as numbered summary (sender, subject, time)
+- [x] Handle zero unread emails gracefully: "No unread emails right now."
+- [x] Handle gog CLI error on list call — surface plain-language error to user
 
 ### Read Thread Flow
 - [ ] Implement email selection handler — accept number or name reference
