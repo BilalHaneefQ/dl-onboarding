@@ -34,8 +34,8 @@
 - [x] Confirm success: "Sent ✓"
 
 ### Orchestrator Integration
-- [ ] Configure Orchestrator Agent to detect email intent and delegate to Email Agent
-- [ ] Verify OpenClaw `delegate` node handoff works end-to-end from Discord DM
+- [x] Configure Orchestrator Agent to detect email intent and delegate to Email Agent
+- [x] Verify OpenClaw `delegate` node handoff works end-to-end from Discord DM
 
 ### Validation
 - [ ] Run Scenario 1 end-to-end from Discord DM: check emails → select → draft → confirm → sent ✓
