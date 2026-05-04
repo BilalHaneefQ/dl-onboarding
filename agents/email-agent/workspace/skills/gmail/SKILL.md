@@ -165,6 +165,70 @@ Would you like to reply?
 
 ---
 
+## Draft Reply
+
+When the user wants to reply (either prompted after reading or directly requested), draft a reply before sending anything.
+
+### Drafting Prompt Construction
+
+Build the LLM prompt with the following structure:
+
+```
+You are drafting a professional email reply on behalf of the user.
+
+Thread context:
+---
+From: {sender}
+Subject: {subject}
+Date: {date}
+
+{thread body or summary}
+---
+
+Draft a concise, professional reply. Match the tone of the original message.
+Do not add sign-off (the user's signature will handle that).
+Do not add "Subject:" or headers — body only.
+Reply only to the specific points raised. Be direct, not verbose.
+```
+
+Store the draft in session memory. Do not send.
+
+### Surfacing the Draft
+
+Always show the draft with this exact format:
+
+```
+Here's a draft reply to {sender first name}:
+
+---
+{draft body}
+---
+
+Should I send this? (yes / edit / cancel)
+```
+
+- Use the sender's first name only (extract from "John Smith" → "John")
+- The `---` delimiters help the user visually separate the draft from the conversation
+- Always end with the three-option prompt on a new line
+
+### Edit Loop
+
+When the user says "edit", requests a change, or gives a specific instruction (e.g., "make it shorter", "add that I'll follow up Monday", "be more formal"):
+
+1. Re-run the drafting prompt with an additional instruction line:
+   ```
+   Additional instruction: {user's edit request}
+   Previous draft (for reference, do not repeat verbatim): {previous draft}
+   ```
+2. Generate a completely new draft — do not patch the old one
+3. Surface the new draft with the same format and confirmation prompt
+4. Repeat for as many edit rounds as the user requests
+5. Only send when the user explicitly confirms with yes/send
+
+**Edit triggers** (match any of these): "edit", "change", "shorter", "longer", "formal", "casual", "add", "remove", "different", "again", "rewrite", or any instruction that modifies the draft.
+
+---
+
 ## Send Reply
 
 ```bash
@@ -177,8 +241,42 @@ gog mail send \
   --no-input
 ```
 
-**Safety:** Never run this without explicit user confirmation ("yes" / "send it" / "go ahead").
+**Safety:** Never run this without explicit user confirmation. See confirmation rules below.
 **Dry-run test:** Append `--dry-run` to validate without sending.
+
+### Confirmation Handler
+
+**Affirmative triggers** (match any): "yes", "send it", "go ahead", "send", "do it", "ok send", "yep", "yeah send"
+→ Execute `gog mail send` with the stored draft + messageId + threadId
+→ On success (exit 0): reply `Sent ✓`
+→ On failure (non-zero exit): see Failure handling below
+
+**Denial triggers** (match any): "no", "cancel", "don't send", "abort", "stop", "never mind", "discard"
+→ Clear the draft from session memory
+→ Reply: `Got it — draft discarded. Anything else?`
+→ Do NOT send under any circumstances
+
+**Ambiguous response** (none of the above): treat as an edit instruction, not a confirmation
+→ Regenerate draft with the user's message as the edit instruction
+→ Re-surface with the confirmation prompt
+
+### Failure Handling
+
+When `gog mail send` returns non-zero exit:
+1. Do NOT discard the draft — keep it in session memory
+2. Reply: `Send failed — {plain-language reason from stderr}. Your draft is still here — want to try again?`
+3. Re-surface the draft body
+4. Wait for another yes/cancel
+
+**Common send failure reasons:**
+
+| Error | Plain-language |
+|---|---|
+| `invalid_grant` / `token expired` | "your Google session expired — re-authenticate with `gog auth add`" |
+| `quotaExceeded` | "Gmail rate limit hit — try again in a minute" |
+| `Recipient address required` | "missing recipient address" |
+| network error | "couldn't reach Gmail — check your connection" |
+| any other | show raw error message from stderr |
 
 ---
 

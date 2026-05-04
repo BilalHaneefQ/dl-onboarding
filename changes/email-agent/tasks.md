@@ -23,15 +23,15 @@
 - [x] Implement thread summarization for long threads (>10 messages or >2000 words)
 
 ### Draft Reply Flow
-- [ ] Build LLM drafting prompt with thread context
-- [ ] Surface draft to user with yes / edit / cancel prompt
-- [ ] Implement edit loop — regenerate draft on edit instruction, re-surface
+- [x] Build LLM drafting prompt with thread context
+- [x] Surface draft to user with yes / edit / cancel prompt
+- [x] Implement edit loop — regenerate draft on edit instruction, re-surface
 
 ### Confirm and Send Flow
-- [ ] Implement affirmative confirmation handler → `gog mail send`
-- [ ] Implement denial handler → discard draft, acknowledge
-- [ ] Handle gog send failure — preserve draft, report error, offer retry
-- [ ] Confirm success: "Sent ✓"
+- [x] Implement affirmative confirmation handler → `gog mail send`
+- [x] Implement denial handler → discard draft, acknowledge
+- [x] Handle gog send failure — preserve draft, report error, offer retry
+- [x] Confirm success: "Sent ✓"
 
 ### Orchestrator Integration
 - [ ] Configure Orchestrator Agent to detect email intent and delegate to Email Agent
