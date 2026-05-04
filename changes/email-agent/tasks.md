@@ -7,7 +7,7 @@
 - [x] Document exact gog mail command signatures needed: list, get, send
 
 ### Agent Prompt
-- [ ] Write Email Agent system prompt: role definition, available tools (gog CLI), confirmation-first rules, tone
+- [x] Write Email Agent system prompt: role definition, available tools (gog CLI), confirmation-first rules, tone
 - [ ] Register Email Agent in OpenClaw as a specialist agent with its own workspace
 
 ### Check Emails Flow
