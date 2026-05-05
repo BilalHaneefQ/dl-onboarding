@@ -27,17 +27,17 @@
 - [x] Remove `GOG_ACCOUNT` global env dependency (replaced by per-command `-a` flag)
 
 ### Validation
-- [ ] Test account map: new Discord ID has no entry → triggers onboarding message
-- [ ] Test account map: known Discord ID → agent delegates normally
-- [ ] Test OAuth URL generation: valid URL with state=discord_id
-- [ ] Test callback (dry-run): valid code → writes to account map, sends DM
-- [ ] Test token expiry path: `invalid_grant` → re-auth link sent
-- [ ] Test per-user isolation: two different Discord IDs use different gog accounts
+- [x] Test account map: new Discord ID has no entry → triggers onboarding message
+- [x] Test account map: known Discord ID → agent delegates normally
+- [x] Test OAuth URL generation: valid URL with state=discord_id
+- [x] Test callback (dry-run): valid code → writes to account map, sends DM
+- [x] Test token expiry path: `invalid_grant` → re-auth link sent
+- [x] Test per-user isolation: two different Discord IDs use different gog accounts
 
 ## Validation
 
-- [ ] All tasks above complete
-- [ ] All 6 validation scenarios pass
-- [ ] spec-delta reviewed — no deviations from implemented behavior
-- [ ] No gog command runs without explicit `-a {user_email}` (no global GOG_ACCOUNT dependency)
-- [ ] Constitutional check: user tokens stored on VPS only, not routed through third-party services
+- [x] All tasks above complete
+- [x] All 6 validation scenarios pass (6/6 unit tests, 3/3 server tests — live tests in validation-report.md)
+- [x] spec-delta reviewed — 1 acceptable deviation (state encoding richer than spec, see DEV-001)
+- [x] No gog command runs without explicit `-a {user_email}` — GOG_ACCOUNT removed from OpenClaw env
+- [x] Constitutional check: tokens on VPS only — audit table in validation-report.md
