@@ -18,15 +18,16 @@
 ### User Onboarding — OAuth Callback Server
 
 **Given** a user clicks the OAuth link and completes the Google consent screen
-**When** Google redirects to `https://{vps-domain}/oauth2/callback?code={auth_code}&state={discord_user_id}`
-**Then** the callback server exchanges the auth code for a refresh token
-**And** runs `gog auth add {user_email} --client omnio` to store the token
-**And** writes `{ discord_user_id: "...", google_email: "..." }` to `state/user-accounts.json`
-**And** sends a Discord DM to the user: "✓ Google account connected ({email}). You're all set — try 'check my emails'."
+**When** Google redirects to `http://localhost:8080/oauth2/callback?code={auth_code}&state={gog_state}`
+**Then** the callback server pipes the full callback URL to the waiting gog process stdin
+**And** gog completes the token exchange and stores the refresh token in its keyring
+**And** the server writes `{ discord_id: "...", google_email: "..." }` to `state/user-accounts.json`
+**And** sends a Discord DM: "✓ Google account connected ({email}). You're all set — try 'check my emails' or 'check my calendar'."
 
 **Given** the OAuth flow fails (user denies access, network error, invalid code)
 **When** the callback server receives an error response
-**Then** the server sends a Discord DM: "Couldn't connect your Google account — [reason]. Try the link again: [link]"
+**Then** the server kills the waiting gog process
+**And** sends a Discord DM: "Couldn't connect your Google account — [reason]. Try the link again or contact the Omnio team."
 **And** no token is stored
 
 ---
@@ -47,13 +48,36 @@
 
 ### OAuth Callback Server — Technical Spec
 
-The callback server is a Node.js HTTP server:
+The callback server is a Node.js HTTP server (`auth-server/server.js`):
 - Listens on port `8080` (configurable via `OAUTH_PORT` env var)
-- Route `GET /oauth2/callback` — handles Google redirect
-- Route `GET /oauth/start?discord_id={id}` — generates and returns OAuth authorization URL
-- Uses gog's `--client omnio` credential (the OAuth client JSON from Google Cloud Console)
-- HTTPS required in production (Let's Encrypt or reverse proxy)
-- State parameter: base64-encoded Discord user ID
+- Route `GET /oauth/start?discord_id={id}&email={email}` — spawns a persistent `gog auth add --manual` process, extracts the OAuth URL from gog's **stderr** output, stores the live process in a pending map keyed by gog's state token, returns the OAuth URL to the caller
+- Route `GET /oauth2/callback` — receives Google's redirect, looks up the pending gog process by state token, pipes the full callback URL to gog's **stdin**, waits for gog to complete token exchange
+- Route `GET /health` — returns server status and config
+
+**Key implementation detail — persistent gog process:**
+The `gog --manual` flow prints the OAuth URL to stderr then waits on stdin for the callback URL. The server keeps this process alive between `/oauth/start` and `/oauth2/callback`. When the callback fires, it writes the full callback URL to the waiting process's stdin. This avoids gog's in-memory state being lost between separate process invocations.
+
+**Deviation from original spec — `--remote --step 1/2` does not work across processes:**
+The original spec assumed `gog --remote --step 1` would persist state in the keyring between two separate execFile calls. In practice, gog stores pending OAuth state in-memory only — it is lost when the step 1 process exits. Switched to `--manual` with a persistent spawned process instead.
+
+**Deviation from original spec — gog URL output is on stderr, tab-separated:**
+`gog --manual` prints `Visit this URL: https://...` to stderr (not stdout). URL extraction reads from both stdout and stderr and uses a regex to find the Google OAuth URL.
+
+**Credentials setup required (one-time):**
+```bash
+# Flatten the Desktop app client_secret JSON (gog expects flat format, not nested under "installed")
+python3 -c "
+import json
+with open('client_secret_xxx.json') as f: d=json.load(f)
+with open('/home/user/.config/gogcli/credentials-omnio.json','w') as f: json.dump(d['installed'],f)
+"
+```
+
+**Required env vars:**
+- `DISCORD_BOT_TOKEN` — bot token for sending DMs
+- `GOG_KEYRING_BACKEND=file` — required on headless Linux
+- `GOG_KEYRING_PASSWORD` — keyring encryption password
+- `GOG_CLIENT=omnio` — gog credential name (default)
 
 ---
 

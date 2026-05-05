@@ -23,7 +23,7 @@
 
 const http = require('http');
 const https = require('https');
-const { execFile } = require('child_process');
+const { spawn } = require('child_process');
 const { linkAccount } = require('./accounts');
 
 const PORT = parseInt(process.env.OAUTH_PORT || '8080', 10);
@@ -33,47 +33,72 @@ const CALLBACK_URI = `${PROTOCOL}://${HOST}/oauth2/callback`;
 const GOG_CLIENT = process.env.GOG_CLIENT || 'omnio';
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
-// In-memory pending map: state token → { discord_id, email }
-// Survives only for the duration of the OAuth flow (~5 min).
+// In-memory pending map: state token → { discord_id, email, gogProcess }
+// The gog process is kept alive between step 1 and step 2.
 const pending = new Map();
 
 // ─── gog helpers ────────────────────────────────────────────────────────────
 
-function gogAuthStep1(email) {
+/**
+ * Spawns a persistent gog --manual process.
+ * gog prints the OAuth URL to stdout, then waits for the callback URL on stdin.
+ * We keep the process alive and pipe the callback URL to it when it arrives.
+ */
+function startGogAuthFlow(email) {
   return new Promise((resolve, reject) => {
     const args = [
       'auth', 'add', email,
-      '--remote', '--step', '1',
+      '--manual',
       '--redirect-uri', CALLBACK_URI,
       '--client', GOG_CLIENT,
       '--services', 'gmail,calendar',
-      '--no-input',
+      '--timeout', '10m',
     ];
-    execFile('gog', args, { env: process.env }, (err, stdout, stderr) => {
-      if (err) return reject(new Error(stderr.trim() || err.message));
-      // gog --remote --step 1 prints the OAuth URL to stdout
-      const url = stdout.trim();
-      if (!url.startsWith('https://accounts.google.com')) {
-        return reject(new Error(`Unexpected gog output: ${url}`));
+    const gog = spawn('gog', args, { env: process.env });
+    let output = '';
+    let resolved = false;
+
+    function checkForUrl(data) {
+      output += data.toString();
+      const urlMatch = output.match(/https:\/\/accounts\.google\.com\/o\/oauth2\/auth\S+/);
+      if (urlMatch && !resolved) {
+        resolved = true;
+        resolve({ url: urlMatch[0], process: gog });
       }
-      resolve(url);
+    }
+
+    // gog --manual prints the URL to stderr in interactive mode
+    gog.stdout.on('data', checkForUrl);
+    gog.stderr.on('data', checkForUrl);
+
+    gog.on('error', (err) => {
+      if (!resolved) reject(err);
     });
+
+    // Timeout if no URL after 15s
+    setTimeout(() => {
+      if (!resolved) {
+        gog.kill();
+        reject(new Error('gog auth timed out waiting for OAuth URL'));
+      }
+    }, 15000);
   });
 }
 
-function gogAuthStep2(email, callbackUrl) {
+/**
+ * Sends the callback URL to the waiting gog process to complete the auth.
+ */
+function completeGogAuthFlow(gogProcess, callbackUrl) {
   return new Promise((resolve, reject) => {
-    const args = [
-      'auth', 'add', email,
-      '--remote', '--step', '2',
-      '--auth-url', callbackUrl,
-      '--client', GOG_CLIENT,
-      '--no-input',
-    ];
-    execFile('gog', args, { env: process.env }, (err, stdout, stderr) => {
-      if (err) return reject(new Error(stderr.trim() || err.message));
-      resolve(stdout.trim());
+    let output = '';
+    gogProcess.stdout.on('data', (data) => { output += data.toString(); });
+    gogProcess.on('close', (code) => {
+      if (code === 0) resolve(output.trim());
+      else reject(new Error(`gog exited with code ${code}: ${output.trim()}`));
     });
+    // Write the callback URL to gog's stdin — this is what --manual waits for
+    gogProcess.stdin.write(callbackUrl + '\n');
+    gogProcess.stdin.end();
   });
 }
 
@@ -144,23 +169,26 @@ async function handleStart(query, res) {
   }
 
   try {
-    const oauthUrl = await gogAuthStep1(email);
+    const { url: oauthUrl, process: gogProcess } = await startGogAuthFlow(email);
 
-    // Extract state from the OAuth URL (Google includes it in the redirect)
-    // We store our own state token keyed to discord_id + email
-    const stateToken = Buffer.from(`${discordId}:${email}:${Date.now()}`).toString('base64url');
-    pending.set(stateToken, { discord_id: discordId, email });
+    // Extract gog's state from the OAuth URL to use as our pending map key
+    const urlObj = new URL(oauthUrl);
+    const gogState = urlObj.searchParams.get('state');
 
-    // Append our state to the OAuth URL
-    const finalUrl = oauthUrl.includes('state=')
-      ? oauthUrl.replace(/state=[^&]*/, `state=${encodeURIComponent(stateToken)}`)
-      : `${oauthUrl}&state=${encodeURIComponent(stateToken)}`;
+    // Store discord_id, email, and the live gog process keyed by state
+    pending.set(gogState, { discord_id: discordId, email, gogProcess });
 
-    // Auto-expire pending entry after 10 minutes
-    setTimeout(() => pending.delete(stateToken), 10 * 60 * 1000);
+    // Auto-expire: kill the gog process and remove pending entry after 10 minutes
+    setTimeout(() => {
+      if (pending.has(gogState)) {
+        const entry = pending.get(gogState);
+        entry.gogProcess.kill();
+        pending.delete(gogState);
+      }
+    }, 10 * 60 * 1000);
 
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ oauth_url: finalUrl, state: stateToken }));
+    res.end(JSON.stringify({ oauth_url: oauthUrl, state: gogState }));
   } catch (err) {
     console.error('[oauth/start]', err.message);
     res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -191,13 +219,13 @@ async function handleCallback(query, res) {
     return res.end('<h2>❌ Invalid or expired OAuth state. Please try again.</h2>');
   }
 
-  const { discord_id, email } = pending.get(state);
+  const { discord_id, email, gogProcess } = pending.get(state);
   pending.delete(state);
 
   const fullCallbackUrl = `${CALLBACK_URI}?${query}`;
 
   try {
-    await gogAuthStep2(email, fullCallbackUrl);
+    await completeGogAuthFlow(gogProcess, fullCallbackUrl);
     linkAccount(discord_id, email);
 
     await sendDiscordDm(discord_id,
