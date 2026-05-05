@@ -14,4 +14,24 @@
 # spec or the archive — write down what was surprising, what you'd tell
 # a teammate in a hallway, what you'd do differently next time.
 
-learnings: []
+learnings:
+  - date: 2026-05-05
+    cycle: email-agent
+    insight: "OpenClaw agents.list is an array in openclaw.json, not an object — use
+      `openclaw config set --batch-file` to modify it; direct file edits are reverted
+      by the daemon. Always use the CLI or batch file approach."
+    category: tooling
+
+  - date: 2026-05-05
+    cycle: email-agent
+    insight: "AGENTS.md is gitignored because OpenClaw auto-generates workspace identity
+      files with that name. Version-control agent prompts as prompt.md and copy to
+      workspace/AGENTS.md during setup. Add register.json for idempotent re-registration."
+    category: process
+
+  - date: 2026-05-05
+    cycle: email-agent
+    insight: "gog mail has no --list-unread flag — use `gog mail search 'is:unread'`
+      with Gmail query syntax. Always verify actual CLI command shapes against --help
+      before writing spec-delta; don't assume flag names from documentation."
+    category: technical
