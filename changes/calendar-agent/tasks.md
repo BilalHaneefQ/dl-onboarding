@@ -8,8 +8,8 @@
 - [x] Document exact gog calendar command signatures: list/search events, update event, create event
 
 ### Agent Prompt
-- [ ] Write Calendar Agent system prompt (role, gog calendar tools, confirmation-first rules)
-- [ ] Register Calendar Agent in OpenClaw (`agents/calendar-agent/register.json`)
+- [x] Write Calendar Agent system prompt (role, gog calendar tools, confirmation-first rules)
+- [x] Register Calendar Agent in OpenClaw (`agents/calendar-agent/register.json`)
 
 ### Reschedule Flow
 - [ ] Implement event search handler — query by natural language description
