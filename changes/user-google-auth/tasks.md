@@ -3,8 +3,8 @@
 ## Implementation Checklist
 
 ### Account Map
-- [ ] Create `state/user-accounts.json` with empty structure `{ "accounts": [] }`
-- [ ] Write account lookup helper: Discord ID → Google email (used by Orchestrator + agents)
+- [x] Create `state/user-accounts.json` with empty structure `{ "accounts": [] }`
+- [x] Write account lookup helper: Discord ID → Google email (used by Orchestrator + agents)
 
 ### OAuth Callback Server
 - [ ] Scaffold `auth-server/server.js` — Node.js HTTP server (port 8080)

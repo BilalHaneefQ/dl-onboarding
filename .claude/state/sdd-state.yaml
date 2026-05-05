@@ -9,7 +9,7 @@ installed_at: null           # set on first /sdd:start
 tracker_preference: "local"  # "local" | "linear" | "github"
 current_cycle:
   slug: user-google-auth
-  phase: proposal
+  phase: implementation
   started_at: "2026-05-05T12:00:00Z"
   tracker_ref: null
   base_branch: main
