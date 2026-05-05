@@ -7,12 +7,12 @@
 - [x] Write account lookup helper: Discord ID → Google email (used by Orchestrator + agents)
 
 ### OAuth Callback Server
-- [ ] Scaffold `auth-server/server.js` — Node.js HTTP server (port 8080)
-- [ ] Implement `GET /oauth/start?discord_id={id}` — generate Google OAuth URL with state param
-- [ ] Implement `GET /oauth2/callback` — exchange code, run `gog auth add`, write account map
-- [ ] Implement Discord DM notification on success/failure (via Discord bot API)
-- [ ] Add `OAUTH_PORT`, `DISCORD_BOT_TOKEN`, `GOG_CLIENT` to env config documentation
-- [ ] Test callback server with `--dry-run` (validate routes without real OAuth)
+- [x] Scaffold `auth-server/server.js` — Node.js HTTP server (port 8080)
+- [x] Implement `GET /oauth/start?discord_id={id}` — generate Google OAuth URL with state param
+- [x] Implement `GET /oauth2/callback` — exchange code, run `gog auth add`, write account map
+- [x] Implement Discord DM notification on success/failure (via Discord bot API)
+- [x] Add `OAUTH_PORT`, `DISCORD_BOT_TOKEN`, `GOG_CLIENT` to env config documentation
+- [x] Test callback server with `--dry-run` (validate routes without real OAuth)
 
 ### Orchestrator — Onboarding Detection
 - [ ] Update omnio skill: check `state/user-accounts.json` before delegating
