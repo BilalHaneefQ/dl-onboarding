@@ -8,10 +8,10 @@ installed_standard_version: "1.5"
 installed_at: null           # set on first /sdd:start
 tracker_preference: "local"  # "local" | "linear" | "github"
 current_cycle:
-  slug: null
-  phase: null                # proposal | implement | complete
-  started_at: null
+  slug: user-google-auth
+  phase: proposal
+  started_at: "2026-05-05T12:00:00Z"
   tracker_ref: null
-  base_branch: null
-  branch_name: null
+  base_branch: main
+  branch_name: user-google-auth
 history: []
