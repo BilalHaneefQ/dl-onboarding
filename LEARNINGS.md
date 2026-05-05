@@ -318,6 +318,26 @@ Now just type `openclaw-start` to restart the gateway cleanly.
 
 ---
 
+## 21. Intent Classification Table Improved Response Speed and Consistency
+
+**What happened:** Before adding the `omnio` SKILL.md with an intent classification table, the agent was slow and inconsistent — it had to reason from scratch on every message to figure out what the user wanted and which tools to use.
+
+**Why it was slow before:** Claude was rediscovering tools, deciding format, and figuring out intent on every single turn. More reasoning = more tokens = slower responses.
+
+**What we did:** Created `~/.openclaw/workspace/skills/omnio/SKILL.md` with an explicit intent classification table:
+- `email` keywords → delegate to `email-agent`
+- `calendar` keywords → delegate to `calendar-agent`
+- `meet` keywords → delegate to `calendar-agent`
+- `unknown` → handle directly
+
+**Result:** Response speed improved significantly. Claude no longer reasons about intent — it reads the table, classifies, delegates. Less thinking = faster replies.
+
+**Also improved consistency:** Before, email list formatting varied. After adding `gmail/SKILL.md` with exact format templates, output is predictable and spec-compliant every time.
+
+**Lesson:** For AI agents, explicit skill files with classification tables and format templates are more reliable and faster than relying on the LLM to figure things out from context alone. Define behavior in skills, don't hope the model infers it correctly.
+
+---
+
 ## Summary — Key Environment Gotchas
 
 | Issue | Root Cause | Fix |
@@ -333,3 +353,4 @@ Now just type `openclaw-start` to restart the gateway cleanly.
 | anthropic plugin missing | agentRuntime not set | Always set `agentRuntime: {"id":"claude-cli"}` |
 | First Discord message fails | claude-cli cold-start (600s) | Send warmup message after gateway start |
 | anthropic harness not registered | Doesn't exist in OpenClaw 2026 | Use claude-cli harness only |
+| Slow/inconsistent agent responses | LLM reasoning from scratch each turn | Add SKILL.md with intent classification table + format templates |
