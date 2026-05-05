@@ -9,7 +9,7 @@ installed_at: "2026-04-30T11:35:00Z"
 tracker_preference: "local"  # "local" | "linear" | "github"
 current_cycle:
   slug: calendar-agent
-  phase: proposal
+  phase: implementation
   started_at: "2026-05-05T08:00:00Z"
   tracker_ref: null
   base_branch: main

@@ -3,9 +3,9 @@
 ## Implementation Checklist
 
 ### Setup
-- [ ] Verify `gog calendar` subcommand availability and output format (`gog calendar --help`)
-- [ ] Verify Meet link generation method (gog meet subcommand or Calendar conferenceData)
-- [ ] Document exact gog calendar command signatures: list/search events, update event, create event
+- [x] Verify `gog calendar` subcommand availability and output format (`gog calendar --help`)
+- [x] Verify Meet link generation method (gog meet subcommand or Calendar conferenceData)
+- [x] Document exact gog calendar command signatures: list/search events, update event, create event
 
 ### Agent Prompt
 - [ ] Write Calendar Agent system prompt (role, gog calendar tools, confirmation-first rules)
