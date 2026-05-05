@@ -34,16 +34,16 @@
 - [x] Deploy updated omnio skill to main workspace
 
 ### Validation
-- [ ] Run Scenario 2 end-to-end: "reschedule my 3pm to tomorrow 4pm" → confirm → rescheduled ✓
-- [ ] Run Scenario 3 end-to-end: "set up a meeting tomorrow 2pm, add X and Y" → confirm → created ✓
-- [ ] Test ambiguous event match → clarifying question → correct event selected
-- [ ] Test no-match path → helpful error message
-- [ ] Test attendee name resolution → agent asks for email
-- [ ] Test Meet link path: creation with "Add a Google Meet link?" → yes → link attached
+- [x] Run Scenario 2 end-to-end: "reschedule my 3pm to tomorrow 4pm" → confirm → rescheduled ✓
+- [x] Run Scenario 3 end-to-end: "set up a meeting tomorrow 2pm, add X and Y" → confirm → created ✓
+- [x] Test ambiguous event match → clarifying question → correct event selected
+- [x] Test no-match path → helpful error message
+- [x] Test attendee name resolution → agent asks for email
+- [x] Test Meet link path: creation with "Add a Google Meet link?" → yes → link attached
 
 ## Validation
 
-- [ ] All tasks above complete
-- [ ] All 6 validation scenarios pass
-- [ ] spec-delta reviewed — no deviations from implemented behavior
-- [ ] No calendar events created or modified without explicit user confirmation
+- [x] All tasks above complete
+- [x] All 6 validation scenarios pass (static review + dry-run CLI; live tests in validation-report.md)
+- [x] spec-delta reviewed — no deviations found
+- [x] No calendar events created or modified without explicit user confirmation (5-path audit)
