@@ -15,16 +15,16 @@
 - [x] Test callback server with `--dry-run` (validate routes without real OAuth)
 
 ### Orchestrator — Onboarding Detection
-- [ ] Update omnio skill: check `state/user-accounts.json` before delegating
-- [ ] Add unlinked user response: "Welcome to Omnio! Connect Google: [link]"
-- [ ] Add `/connect` command shortcut to re-trigger OAuth link
-- [ ] Deploy updated omnio skill to main workspace
+- [x] Update omnio skill: check `state/user-accounts.json` before delegating
+- [x] Add unlinked user response: "Welcome to Omnio! Connect Google: [link]"
+- [x] Add `/connect` command shortcut to re-trigger OAuth link
+- [x] Deploy updated omnio skill to main workspace
 
 ### Agent Account Scoping
-- [ ] Update email-agent gmail skill: add `-a {user_email}` to all gog mail commands
-- [ ] Update calendar-agent gcal skill: add `-a {user_email}` to all gog calendar commands
-- [ ] Update agent prompts: receive user_email from Orchestrator context, pass to gog commands
-- [ ] Remove `GOG_ACCOUNT` global env dependency (replaced by per-command `-a` flag)
+- [x] Update email-agent gmail skill: add `-a {user_email}` to all gog mail commands
+- [x] Update calendar-agent gcal skill: add `-a {user_email}` to all gog calendar commands
+- [x] Update agent prompts: receive user_email from Orchestrator context, pass to gog commands
+- [x] Remove `GOG_ACCOUNT` global env dependency (replaced by per-command `-a` flag)
 
 ### Validation
 - [ ] Test account map: new Discord ID has no entry → triggers onboarding message
