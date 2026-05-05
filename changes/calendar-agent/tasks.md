@@ -12,26 +12,26 @@
 - [x] Register Calendar Agent in OpenClaw (`agents/calendar-agent/register.json`)
 
 ### Reschedule Flow
-- [ ] Implement event search handler — query by natural language description
-- [ ] Implement event disambiguation prompt for ambiguous matches
-- [ ] Implement no-match response
-- [ ] Implement reschedule confirmation display (event name, attendees, new time)
-- [ ] Implement reschedule execution — update event time, preserve Meet link
-- [ ] Handle reschedule failure — plain-language error, event unchanged
+- [x] Implement event search handler — query by natural language description
+- [x] Implement event disambiguation prompt for ambiguous matches
+- [x] Implement no-match response
+- [x] Implement reschedule confirmation display (event name, attendees, new time)
+- [x] Implement reschedule execution — update event time, preserve Meet link
+- [x] Handle reschedule failure — plain-language error, event unchanged
 
 ### Create Meeting Flow
-- [ ] Implement availability check before creation
-- [ ] Implement creation confirmation display (time, attendees, Meet link offer)
-- [ ] Implement attendee email resolution (display name → email, ask if unknown)
-- [ ] Implement event creation with attendees
-- [ ] Implement Meet link attachment (if requested)
-- [ ] Confirm creation: "Meeting created ✓ — invites sent"
-- [ ] Handle creation failure — plain-language error, no event created
+- [x] Implement availability check before creation
+- [x] Implement creation confirmation display (time, attendees, Meet link offer)
+- [x] Implement attendee email resolution (display name → email, ask if unknown)
+- [x] Implement event creation with attendees
+- [x] Implement Meet link attachment (if requested)
+- [x] Confirm creation: "Meeting created ✓ — invites sent"
+- [x] Handle creation failure — plain-language error, no event created
 
 ### Orchestrator Integration
-- [ ] Update Orchestrator omnio skill — mark calendar-agent as Active
-- [ ] Update routing: calendar/meet intent → calendar-agent delegate
-- [ ] Deploy updated omnio skill to main workspace
+- [x] Update Orchestrator omnio skill — mark calendar-agent as Active
+- [x] Update routing: calendar/meet intent → calendar-agent delegate
+- [x] Deploy updated omnio skill to main workspace
 
 ### Validation
 - [ ] Run Scenario 2 end-to-end: "reschedule my 3pm to tomorrow 4pm" → confirm → rescheduled ✓
