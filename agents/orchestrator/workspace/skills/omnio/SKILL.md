@@ -106,3 +106,24 @@ The prefix `[user_email:x@y.com]` is parsed by the specialist agent's prompt to 
 - Never reveal the handoff or account check to the user
 - If the auth server is unreachable, reply: "Google auth is temporarily unavailable. Try again in a moment."
 - If `gog auth add` failed for a user (their token is invalid), `gog` commands return `invalid_grant` — the specialist agent handles re-auth prompts
+
+---
+
+## Name-to-Email Resolution (Contact Lookup)
+
+Before delegating to a specialist agent, if the user's message mentions a person by name without an email address:
+
+1. Run `gog people search "{name}" -a {google_email} -j --results-only --max=5 --fail-empty`
+2. See the `contact-lookup` skill for full resolution rules (unique/multiple/no match)
+3. Confirm the email with the user before including it in the delegated message
+
+**Never ask "what's their email?" without attempting a lookup first.**
+
+Example:
+```
+User: "schedule with Nameer tomorrow 3pm"
+→ Run: gog people search "Nameer" -a bilal@disrupt.com -j --results-only
+→ Reply: "Found Nameer Ahmed (nameer@disrupt.com). Use this address?"
+→ User: "yes"
+→ Delegate to calendar-agent with Nameer's email resolved
+```
