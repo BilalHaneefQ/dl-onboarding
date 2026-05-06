@@ -5,7 +5,7 @@
 # Managed by /sdd/* commands. Do not edit by hand.
 
 installed_standard_version: "1.5"
-installed_at: null           # set on first /sdd:start
+installed_at: "2026-04-30T11:35:00Z"
 tracker_preference: "local"  # "local" | "linear" | "github"
 current_cycle:
   slug: null

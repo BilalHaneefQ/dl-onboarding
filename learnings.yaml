@@ -35,3 +35,42 @@ learnings:
       isolation, use gog's native multi-account support (-a flag per command) + manual
       openclaw agents add per user. Per-user container automation is a future problem."
     category: architecture
+  - date: 2026-05-05
+    cycle: calendar-agent
+    insight: "gog calendar update --attendees REPLACES all attendees, not adds to them. Always
+      omit --attendees entirely on reschedule; use --add-attendee to add without removing.
+      Confirmed via dry-run: update patch contains only changed fields."
+    category: technical
+
+  - date: 2026-05-05
+    cycle: calendar-agent
+    insight: "Meet links are generated via --with-meet flag on gog calendar create — there is
+      no separate gog meet command. conferenceData is preserved automatically on update with
+      no special flag needed."
+    category: technical
+
+  - date: 2026-05-05
+    cycle: calendar-agent
+    insight: "Orchestrator skill files live in the main agent's workspace (~/.openclaw/workspace/skills/)
+      and must be deployed there manually — they're not auto-loaded from the project repo.
+      Keep project copies in agents/orchestrator/ as the source of truth."
+    category: process
+    cycle: email-agent
+    insight: "OpenClaw agents.list is an array in openclaw.json, not an object — use
+      `openclaw config set --batch-file` to modify it; direct file edits are reverted
+      by the daemon. Always use the CLI or batch file approach."
+    category: tooling
+
+  - date: 2026-05-05
+    cycle: email-agent
+    insight: "AGENTS.md is gitignored because OpenClaw auto-generates workspace identity
+      files with that name. Version-control agent prompts as prompt.md and copy to
+      workspace/AGENTS.md during setup. Add register.json for idempotent re-registration."
+    category: process
+
+  - date: 2026-05-05
+    cycle: email-agent
+    insight: "gog mail has no --list-unread flag — use `gog mail search 'is:unread'`
+      with Gmail query syntax. Always verify actual CLI command shapes against --help
+      before writing spec-delta; don't assume flag names from documentation."
+    category: technical
