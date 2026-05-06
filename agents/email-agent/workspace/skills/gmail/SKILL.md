@@ -157,3 +157,21 @@ Your Google session expired. Re-authenticate here: {AUTH_SERVER}/oauth/start?dis
 - `--gmail-no-send` blocks all sends — use during testing
 - `--dry-run` on send validates without executing
 - `GOG_ACCOUNT` global env is no longer used — always pass `-a {USER_EMAIL}` explicitly
+
+---
+
+## Recipient Name Resolution
+
+When the user says "email [name]" or "forward to [name]" without an email address:
+
+1. Run `gog people search "{name}" -a {USER_EMAIL} -j --results-only --max=5 --fail-empty`
+2. Follow the `contact-lookup` skill resolution rules (confirm unique match, disambiguate multiple, ask if none)
+3. Never ask "what's their email?" without attempting a directory lookup first
+
+Example:
+```
+User: "email Ahmed about the budget doc"
+→ Run: gog people search "Ahmed" -a bilal@disrupt.com -j --results-only
+→ Reply: "Found Ahmed Hassan (ahmed@disrupt.com). Use this address?"
+→ User: "yes" → proceed to draft the email to ahmed@disrupt.com
+```

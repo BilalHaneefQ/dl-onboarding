@@ -15,6 +15,9 @@ current_cycle:
   base_branch: null
   branch_name: null
 history:
+  - slug: contact-lookup
+    completed: "2026-05-06"
+    summary: "Contact lookup — gog people search resolves names to emails before asking user"
   - slug: user-google-auth
     completed: "2026-05-06"
     summary: "Multi-user Google OAuth onboarding — auth-server (Node.js), gog --manual persistent process, per-user -a flag routing"

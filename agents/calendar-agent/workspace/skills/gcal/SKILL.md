@@ -105,7 +105,7 @@ Without Meet: omit `--with-meet`.
 Success: `Meeting created ✓ — invites sent to [emails]. Meet link: https://meet.google.com/...`
 Failure: plain-language error, no event created.
 
-**Attendee resolution:** ask for email if only display name given. Default duration: 1 hour.
+**Attendee resolution:** if only a display name is given, run `gog people search "{name}" -a {USER_EMAIL} -j --results-only --max=5 --fail-empty` first. Confirm the match with the user before using. Only ask for email manually if lookup fails or returns no results. See `contact-lookup` skill. Default duration: 1 hour.
 
 ---
 

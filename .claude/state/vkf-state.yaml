@@ -59,7 +59,7 @@ validation_result:
 last_constitution_review: null
 
 # Last freshness scan (set by /vkf/freshness)
-last_freshness_scan: null
+last_freshness_scan: "2026-05-06T10:00:00Z"
 stale_specs: []
 
 # --- Advanced Tier State (populated when advanced_tier: true) ---
