@@ -18,3 +18,6 @@ history:
   - slug: email-agent
     completed: "2026-05-05"
     summary: "Email Agent — check/draft/send via Discord DM using gog CLI + OpenClaw specialist agent"
+  - slug: calendar-agent
+    completed: "2026-05-05"
+    summary: "Calendar Agent — reschedule meetings and create new meetings with Meet links via gog CLI"

@@ -1,0 +1,26 @@
+[
+  {
+    "path": "agents.list",
+    "value": [
+      {
+        "id": "main",
+        "default": true,
+        "workspace": "/home/bilal/.openclaw/workspace",
+        "agentDir": "/home/bilal/.openclaw/agents/main/agent",
+        "agentRuntime": { "id": "claude-cli" }
+      },
+      {
+        "id": "email-agent",
+        "workspace": "/home/bilal/sites/dl-onboarding/agents/email-agent/workspace",
+        "agentDir": "/home/bilal/.openclaw/agents/email-agent/agent",
+        "agentRuntime": { "id": "claude-cli" }
+      },
+      {
+        "id": "calendar-agent",
+        "workspace": "/home/bilal/sites/dl-onboarding/agents/calendar-agent/workspace",
+        "agentDir": "/home/bilal/.openclaw/agents/calendar-agent/agent",
+        "agentRuntime": { "id": "claude-cli" }
+      }
+    ]
+  }
+]

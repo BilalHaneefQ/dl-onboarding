@@ -14,8 +14,8 @@ Classify every incoming user message into one of these categories before acting:
 | Intent | Keywords / Patterns | Agent |
 |--------|-------------------|-------|
 | **email** | "check email", "emails", "check my inbox", "unread", "reply to", "send email", "what emails", "any mail", "email from" | `email-agent` |
-| **calendar** | "meeting", "schedule", "reschedule", "calendar", "event", "invite", "book", "block time", "what's on", "my day" | `calendar-agent` (not yet built) |
-| **meet** | "meet link", "google meet", "video call", "meeting link", "create a call" | `calendar-agent` (not yet built) |
+| **calendar** | "meeting", "schedule", "reschedule", "calendar", "event", "invite", "book", "block time", "what's on", "my day" | `calendar-agent` |
+| **meet** | "meet link", "google meet", "video call", "meeting link", "create a call" | `calendar-agent` |
 | **unknown** | Anything that doesn't map to above | Handle directly |
 
 Use the **most prominent intent** — don't try to handle multiple intents in one message (ask the user to split them).
@@ -28,35 +28,29 @@ When intent is **email**, delegate using:
 openclaw agent --agent email-agent --message "{user's full message}" --deliver --channel discord
 ```
 
-- Pass the user's **original message verbatim** as `--message`
-- Use `--deliver` so the email agent's response goes back to Discord
-- Do NOT summarize or modify the user's message before passing it
+## Delegating to Calendar Agent
 
-The email agent handles the rest of the conversation turn. You resume control when it finishes.
+When intent is **calendar** or **meet**, delegate using:
 
-**Do not reply to the user yourself** when delegating — the specialist agent's reply is the response.
+```bash
+openclaw agent --agent calendar-agent --message "{user's full message}" --deliver --channel discord
+```
 
-## Handling Unknown Intent
-
-If the message doesn't match any specialist category:
-- Handle it directly (general assistant behavior)
-- If it could be a new specialist category, note it for future expansion
+Pass the user's **original message verbatim** as `--message`. Do NOT reply to the user yourself when delegating — the specialist agent's reply is the response.
 
 ## Agent Availability
 
 | Agent | Status | Handles |
 |-------|--------|---------|
 | `email-agent` | ✓ Active | Gmail check, draft, send |
-| `calendar-agent` | ✗ Not yet built | Google Calendar, Meet |
+| `calendar-agent` | ✓ Active | Google Calendar reschedule, create meeting, Meet links |
 
-If user asks for calendar/Meet functionality:
-```
-Calendar and Meet agents aren't available yet — coming soon.
-For now I can help with email, or answer general questions.
-```
+## Handling Unknown Intent
+
+If the message doesn't match any specialist category, handle it directly (general assistant behavior).
 
 ## Notes
 
-- Never reveal to the user that a handoff is happening — just delegate transparently
-- If `openclaw agent --agent email-agent` fails, tell the user: "Email agent is unavailable right now. Try again in a moment."
-- The email agent maintains its own session context — do not try to pre-fetch emails yourself
+- Never reveal to the user that a handoff is happening — delegate transparently
+- If a specialist agent fails, tell the user: "[Agent] is unavailable right now. Try again in a moment."
+- The specialist agents maintain their own session context — do not pre-fetch data yourself
