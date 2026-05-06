@@ -1,8 +1,9 @@
 # Feature Spec: Calendar Agent
 
 **Status:** Active
-**Last reviewed:** 2026-05-05
+**Last reviewed:** 2026-05-06
 **Cycle landed:** calendar-agent (archive: `archive/calendar-agent/`)
+**Updated:** 2026-05-06 (C1 — added per-user account scoping from user-google-auth cycle)
 
 ---
 
@@ -67,3 +68,24 @@
 **When** the Orchestrator delegates via `openclaw agent --agent calendar-agent --message "{user's message}" --deliver`
 **Then** the Calendar Agent takes over the conversation turn
 **And** the user does not need to know a handoff occurred
+
+---
+
+## Calendar Agent — Per-User Account Scoping
+
+*Added: 2026-05-06 — user-google-auth cycle*
+
+**Given** the Orchestrator delegates a calendar task to the Calendar Agent
+**When** the delegation message includes a `[user_email:x@y.com]` prefix
+**Then** the Calendar Agent extracts `user_email` from the prefix before running any gog command
+**And** all `gog calendar` commands include `-a {user_email}` to scope to that user's Google account
+
+**Given** no `[user_email:]` prefix is present in the delegated message
+**When** the Calendar Agent attempts to run a gog command
+**Then** the agent replies: "I don't know which Google account to use. Please reconnect via /connect."
+**And** no gog command is executed
+
+**Given** a gog command returns `invalid_grant` or `token expired` for the user's account
+**When** the Calendar Agent receives this error
+**Then** the agent replies: "Your Google session expired. Re-authenticate: {AUTH_SERVER}/oauth/start?discord_id={discord_id}&email={user_email}"
+**And** the session is not retried automatically
