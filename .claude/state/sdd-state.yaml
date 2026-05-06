@@ -8,13 +8,16 @@ installed_standard_version: "1.5"
 installed_at: "2026-04-30T11:35:00Z"
 tracker_preference: "local"  # "local" | "linear" | "github"
 current_cycle:
-  slug: contact-lookup
-  phase: implementation
-  started_at: "2026-05-06T11:00:00Z"
+  slug: null
+  phase: null
+  started_at: null
   tracker_ref: null
-  base_branch: main
-  branch_name: contact-lookup
+  base_branch: null
+  branch_name: null
 history:
+  - slug: contact-lookup
+    completed: "2026-05-06"
+    summary: "Contact lookup — gog people search resolves names to emails before asking user"
   - slug: user-google-auth
     completed: "2026-05-06"
     summary: "Multi-user Google OAuth onboarding — auth-server (Node.js), gog --manual persistent process, per-user -a flag routing"

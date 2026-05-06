@@ -16,6 +16,13 @@
 
 learnings:
   - date: 2026-05-06
+    cycle: contact-lookup
+    insight: "gog people search uses exit code 3 (not 0/empty array) when --fail-empty is set
+      and no results are found. Exit 2 = auth/network error. Always handle these separately:
+      3 = fall back to asking; 2 = surface error and fall back."
+    category: technical
+
+  - date: 2026-05-06
     cycle: user-google-auth
     insight: "gog --remote --step 1/2 does NOT work across separate process invocations — gog
       stores PKCE state in-memory only. Use --manual with a persistent spawned process: step 1
