@@ -8,10 +8,13 @@ installed_standard_version: "1.5"
 installed_at: null           # set on first /sdd:start
 tracker_preference: "local"  # "local" | "linear" | "github"
 current_cycle:
-  slug: user-google-auth
-  phase: implementation
-  started_at: "2026-05-05T12:00:00Z"
+  slug: null
+  phase: null
+  started_at: null
   tracker_ref: null
-  base_branch: main
-  branch_name: user-google-auth
-history: []
+  base_branch: null
+  branch_name: null
+history:
+  - slug: user-google-auth
+    completed: "2026-05-06"
+    summary: "Multi-user Google OAuth onboarding — auth-server (Node.js), gog --manual persistent process, per-user -a flag routing"
