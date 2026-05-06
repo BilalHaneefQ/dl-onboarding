@@ -362,6 +362,22 @@ gog calendar update primary {eventId} --from "new-time" --to "new-time" --send-u
 
 ---
 
+## 23. Spec Missed Crucial CLI Behavior — gog `--remote` State Is In-Memory Only
+
+**What happened:** The `user-google-auth` spec was written assuming `gog auth add --remote --step 1` would persist the OAuth pending state to the keyring between two separate process calls. In reality, gog stores that state **in-memory only** — it dies when the process exits.
+
+**Why the spec was wrong:** The spec was written based on reading the `--remote` flag docs without actually running the two-step flow to verify state persistence. Previous cycles (email-agent, calendar-agent) ran `gog --help` and tested commands manually before speccing. This cycle skipped that verification for the multi-step auth flow.
+
+**What broke:** Every OAuth callback attempt returned "manual auth state mismatch" or "manual auth state missing" because step 2 ran as a new process with no knowledge of step 1's state.
+
+**The fix:** Switched from `--remote --step 1/2` (two separate processes) to `--manual` with a **persistent spawned process** that stays alive between the OAuth start and callback. The server keeps the gog process open, pipes the callback URL to its stdin when Google redirects back.
+
+**Second miss in the same spec:** The spec assumed gog's OAuth URL would be printed to stdout. Reality: `gog --manual` prints the URL to **stderr** in the format `Visit this URL: https://...`. The URL extraction regex had to listen on stderr, not stdout.
+
+**Lesson:** For any multi-step CLI flow involving inter-process state, always run the full sequence manually and observe exact behavior before writing the spec. Don't assume state persistence across separate process invocations — verify it. The SDD setup tasks exist for exactly this reason — use them for auth flows too, not just simple commands.
+
+---
+
 ## Summary — Key Environment Gotchas
 
 | Issue | Root Cause | Fix |
@@ -379,3 +395,5 @@ gog calendar update primary {eventId} --from "new-time" --to "new-time" --send-u
 | anthropic harness not registered | Doesn't exist in OpenClaw 2026 | Use claude-cli harness only |
 | Slow/inconsistent agent responses | LLM reasoning from scratch each turn | Add SKILL.md with intent classification table + format templates |
 | gog calendar update wipes attendees | `--attendees` replaces, not appends | Omit `--attendees` on reschedule; use `--add-attendee` to add |
+| gog --remote step 1/2 fails across processes | State is in-memory, lost on process exit | Use `--manual` with persistent spawned process instead |
+| gog --manual URL on stderr not stdout | gog prints auth URL to stderr | Listen on both stdout and stderr for URL extraction |

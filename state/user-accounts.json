@@ -1,3 +1,9 @@
 {
-  "accounts": []
+  "accounts": [
+    {
+      "discord_user_id": "1499041268528054483",
+      "google_email": "bilal.haneef@disrupt.com",
+      "linked_at": "2026-05-05T12:32:24.383Z"
+    }
+  ]
 }

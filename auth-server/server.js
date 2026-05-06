@@ -163,9 +163,9 @@ async function handleStart(query, res) {
   const discordId = params.get('discord_id');
   const email = params.get('email');
 
-  if (!discordId || !email) {
+  if (!email) {
     res.writeHead(400, { 'Content-Type': 'application/json' });
-    return res.end(JSON.stringify({ error: 'discord_id and email are required' }));
+    return res.end(JSON.stringify({ error: 'email is required' }));
   }
 
   try {
@@ -175,8 +175,8 @@ async function handleStart(query, res) {
     const urlObj = new URL(oauthUrl);
     const gogState = urlObj.searchParams.get('state');
 
-    // Store discord_id, email, and the live gog process keyed by state
-    pending.set(gogState, { discord_id: discordId, email, gogProcess });
+    // Store email and live gog process keyed by state (discord_id optional)
+    pending.set(gogState, { discord_id: discordId || null, email, gogProcess });
 
     // Auto-expire: kill the gog process and remove pending entry after 10 minutes
     setTimeout(() => {
@@ -226,11 +226,14 @@ async function handleCallback(query, res) {
 
   try {
     await completeGogAuthFlow(gogProcess, fullCallbackUrl);
-    linkAccount(discord_id, email);
+    linkAccount(discord_id || email, email);
 
-    await sendDiscordDm(discord_id,
-      `✓ Google account connected (${email}). You're all set — try "check my emails" or "check my calendar".`
-    );
+    // DM the user on Discord if discord_id is available
+    if (discord_id) {
+      await sendDiscordDm(discord_id,
+        `✓ Google account connected (${email}). You're all set — try "check my emails" or "check my calendar".`
+      );
+    }
 
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end('<h2>✓ Google account connected! You can close this window and return to Discord.</h2>');
