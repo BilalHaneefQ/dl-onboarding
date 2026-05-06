@@ -5,13 +5,16 @@
 # Managed by /sdd/* commands. Do not edit by hand.
 
 installed_standard_version: "1.5"
-installed_at: null           # set on first /sdd:start
+installed_at: "2026-04-30T11:35:00Z"
 tracker_preference: "local"  # "local" | "linear" | "github"
 current_cycle:
   slug: null
-  phase: null                # proposal | implement | complete
+  phase: null
   started_at: null
   tracker_ref: null
   base_branch: null
   branch_name: null
-history: []
+history:
+  - slug: email-agent
+    completed: "2026-05-05"
+    summary: "Email Agent — check/draft/send via Discord DM using gog CLI + OpenClaw specialist agent"
