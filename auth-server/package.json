@@ -1,0 +1,13 @@
+{
+  "name": "omnio-auth-server",
+  "version": "1.0.0",
+  "description": "Omnio Google OAuth callback server for multi-user onboarding",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "health": "curl -s http://localhost:${OAUTH_PORT:-8080}/health | node -e \"const d=require('fs').readFileSync('/dev/stdin','utf8'); console.log(JSON.stringify(JSON.parse(d),null,2))\""
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

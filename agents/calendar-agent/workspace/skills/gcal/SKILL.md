@@ -1,224 +1,128 @@
 ---
 name: gcal
-description: Google Calendar and Meet access via gog CLI — reschedule events, create meetings, generate Meet links.
+description: Google Calendar and Meet access via gog CLI — per-user scoped via -a flag.
 ---
 
 # gcal
 
-Use `gog calendar` for all Google Calendar operations. Calendar ID is `primary` by default. Timezone: `Asia/Karachi` (UTC+5, offset `+05:00`).
+Use `gog calendar` for all Google Calendar operations. Always include `-a {USER_EMAIL}`. Calendar ID: `primary`. Timezone: `Asia/Karachi` (UTC+5, `+05:00`).
+
+## Extracting User Email
+
+Your message from the Orchestrator starts with `[user_email:x@y.com]`. Extract this before running any gog command:
+
+```
+[user_email:bilal@company.com] reschedule my 3pm to tomorrow 4pm
+→ USER_EMAIL = bilal@company.com
+→ MESSAGE = "reschedule my 3pm to tomorrow 4pm"
+```
+
+Use `USER_EMAIL` as the `-a` value for all gog commands.
 
 ---
 
 ## Event Search — Resolving User References
 
-When the user mentions an event, resolve it to a specific `eventId` and `calendarId` before showing the confirmation.
-
-**Strategy 1 — By time** ("my 3pm today", "the meeting at 2"):
+**By time** ("my 3pm today"):
 ```bash
-gog calendar events primary --from today --to tomorrow -j --results-only
+gog calendar events primary -a {USER_EMAIL} --from today --to tomorrow -j --results-only
 ```
-Filter the returned array by start time proximity to the mentioned time. "3pm" → find events where `start.dateTime` contains `T15:`.
+Filter by `start.dateTime` containing `T15:` for "3pm".
 
-**Strategy 2 — By name** ("my budget meeting", "the sync with Sara"):
+**By name** ("my budget meeting"):
 ```bash
-gog calendar search "{keyword}" -j --results-only
+gog calendar search "{keyword}" -a {USER_EMAIL} -j --results-only
 ```
 
-**Output shape** (array of event objects):
+**Output shape:**
 ```json
 [
   {
     "id": "event-id-abc",
     "summary": "Product Sync",
-    "start": { "dateTime": "2026-05-05T15:00:00+05:00", "timeZone": "Asia/Karachi" },
-    "end":   { "dateTime": "2026-05-05T16:00:00+05:00", "timeZone": "Asia/Karachi" },
-    "attendees": [
-      { "email": "ahmed@company.com", "displayName": "Ahmed" },
-      { "email": "sara@company.com",  "displayName": "Sara" },
-      { "email": "bilal@company.com", "displayName": "Bilal", "self": true }
-    ],
-    "conferenceData": {
-      "entryPoints": [{ "uri": "https://meet.google.com/abc-defg-hij", "entryPointType": "video" }]
-    }
+    "start": { "dateTime": "2026-05-05T15:00:00+05:00" },
+    "end":   { "dateTime": "2026-05-05T16:00:00+05:00" },
+    "attendees": [{ "email": "ahmed@co.com", "displayName": "Ahmed" }],
+    "conferenceData": { "entryPoints": [{ "uri": "https://meet.google.com/abc-defg-hij" }] }
   }
 ]
 ```
 
-**Session state:** Keep the last shown event list in memory:
-```
-[
-  { index: 1, summary: "Product Sync", eventId: "abc", calendarId: "primary",
-    start: "2026-05-05T15:00:00+05:00", attendeeNames: ["Ahmed","Sara","Bilal"],
-    hasMeetLink: true }
-]
-```
+Keep session state: `[{ index, summary, eventId, calendarId: "primary", start, attendeeNames, hasMeetLink }]`
 
-**Unique match** → proceed to confirmation immediately.
-
-**Ambiguous match** (2+ events match):
-```
-Which meeting do you mean?
-1. Product Sync at 3pm (with Ahmed, Sara)
-2. 1:1 with Manager at 3pm
-```
-Wait for selection. Then show confirmation.
-
-**No match:**
-```
-I couldn't find a meeting matching '[description]'.
-Try the event name, an attendee's name, or an exact time.
-```
-
----
-
-## Reschedule Meeting
-
-### Confirmation Display
-
-After uniquely identifying the event, show:
-```
-Found '[Event Name]' at [current time] with [attendee list].
-Reschedule to [new day] at [new time] and notify them?
-```
-
-Example:
-```
-Found 'Product Sync' at 3pm today with Ahmed, Sara, and Bilal.
-Reschedule to tomorrow 4pm (16:00–17:00) and notify them?
-```
-
-Preserve the same duration as the original event. "Reschedule my 3pm to tomorrow 4pm" → find event duration → apply same duration at new time.
-
-### Execute Reschedule
-
-On affirmative confirmation:
-```bash
-gog calendar update primary {eventId} \
-  --from "{new RFC3339 start}" \
-  --to   "{new RFC3339 end}" \
-  --send-updates all \
-  --no-input \
-  -j --results-only
-```
-
-**Critical:** Do NOT include `--attendees` — it replaces all attendees. Do NOT touch `conferenceData` — Meet link is preserved automatically.
-
-On success:
-```
-Rescheduled ✓ — [attendee names] have been notified.
-```
-
-On failure (non-zero exit):
-```
-Reschedule failed — [plain-language reason from stderr]. The event wasn't changed.
-```
+**Unique match** → confirmation. **Ambiguous** → single clarifying question. **No match** → helpful error.
 
 ---
 
 ## Check Availability
 
-Before confirming a new meeting creation, always check free/busy:
 ```bash
-gog calendar freebusy primary \
-  --from "{RFC3339 slot start}" \
-  --to   "{RFC3339 slot end}" \
-  -j --results-only
+gog calendar freebusy primary -a {USER_EMAIL} \
+  --from "{RFC3339}" --to "{RFC3339}" -j --results-only
 ```
 
-**Free** (`busy` array is empty or absent):
+`busy` empty = free. Show conflict if busy.
+
+---
+
+## Reschedule Event
+
+Confirmation display:
+```
+Found '[Name]' at [time] with [attendees]. Reschedule to [new time] and notify them?
+```
+
+Execute (preserve Meet link — do NOT include `--attendees`):
+```bash
+gog calendar update primary {eventId} -a {USER_EMAIL} \
+  --from "{RFC3339}" --to "{RFC3339}" \
+  --send-updates all --no-input -j --results-only
+```
+
+Success: `Rescheduled ✓ — [attendees] have been notified.`
+Failure: plain-language error, event unchanged.
+
+---
+
+## Create Event
+
+Confirmation display:
 ```
 You're free at [time]. Creating [duration] meeting with [attendees]. Add a Google Meet link?
 ```
 
-**Busy** (slot has entries in `busy`):
-```
-You have '[conflicting event summary]' at [time]. Pick a different time, or create the meeting anyway?
-```
-
-If the user says "create it anyway" → proceed to creation without re-checking.
-
----
-
-## Attendee Resolution
-
-When the user names attendees without email addresses ("add Ahmed and Sara"), you cannot create the event without emails.
-
-```
-What are Ahmed's and Sara's email addresses?
-```
-
-Wait for emails before running freebusy or create. Never invent or guess email addresses.
-
-**Known emails from prior session state** (e.g., user just rescheduled a meeting that included Ahmed) → reuse those emails without asking.
-
-**Default title inference:** "Meeting with Ahmed and Sara" unless the user specifies a name. Ask only if the event type is specialized ("standup", "retrospective", "demo") — for generic meetings, infer the title.
-
----
-
-## Create Meeting
-
-### Confirmation Display
-
-After freebusy check and attendee resolution:
-```
-You're free at [time]. Creating [duration] meeting with [attendees]. Add a Google Meet link?
-```
-
-If busy, the user said "create anyway":
-```
-Creating [duration] meeting with [attendees] at [time] (you have a conflict). Add a Google Meet link?
-```
-
-### Execute Creation
-
-**With Meet link** (user said "yes" to Meet):
+Execute with Meet:
 ```bash
-gog calendar create primary \
+gog calendar create primary -a {USER_EMAIL} \
   --summary "{title}" \
-  --from "{RFC3339 start}" \
-  --to   "{RFC3339 end}" \
+  --from "{RFC3339}" --to "{RFC3339}" \
   --attendees "{email1,email2}" \
-  --with-meet \
-  --send-updates all \
-  --no-input \
-  -j --results-only
+  --with-meet --send-updates all --no-input -j --results-only
 ```
 
-**Without Meet link:**
-Omit `--with-meet`.
+Without Meet: omit `--with-meet`.
 
-On success — extract Meet link from response if present:
-```
-Meeting created ✓ — invites sent to [attendee emails].
-Meet link: https://meet.google.com/...
-```
+Success: `Meeting created ✓ — invites sent to [emails]. Meet link: https://meet.google.com/...`
+Failure: plain-language error, no event created.
 
-Without Meet link:
-```
-Meeting created ✓ — invites sent to [attendee emails].
-```
-
-On failure (non-zero exit):
-```
-Couldn't create the meeting — [plain-language reason from stderr]. Nothing was created.
-```
-
-**Default duration:** 1 hour unless user specifies ("30-minute meeting", "2 hour call").
+**Attendee resolution:** ask for email if only display name given. Default duration: 1 hour.
 
 ---
 
-## Time Conversion — Natural Language to RFC3339
+## Time Conversion
 
-Always convert before running commands. Use `Asia/Karachi` (UTC+5 = `+05:00`).
+All times → RFC3339 with `+05:00` (Asia/Karachi):
+- "tomorrow 4pm" → `2026-05-06T16:00:00+05:00`
+- "today 3pm" → `2026-05-05T15:00:00+05:00`
 
-| User says | RFC3339 (assumes today is 2026-05-05) |
-|---|---|
-| "tomorrow 4pm" | `2026-05-06T16:00:00+05:00` |
-| "today 3pm" | `2026-05-05T15:00:00+05:00` |
-| "Monday 10am" | `2026-05-11T10:00:00+05:00` |
-| "in 30 minutes" | current time + 30m, rounded to next 15-min slot |
+---
 
-Always compute the end time from the duration. Default duration: 1 hour.
+## Token Expiry Re-Auth
+
+If gog returns `invalid_grant` or `token expired`:
+```
+Your Google session expired. Re-authenticate: {AUTH_SERVER}/oauth/start?discord_id={DISCORD_ID}&email={USER_EMAIL}
+```
 
 ---
 
@@ -226,7 +130,6 @@ Always compute the end time from the duration. Default duration: 1 hour.
 
 **Affirmative:** "yes", "go ahead", "do it", "sure", "ok", "yep", "create it", "reschedule it"
 **Denial:** "no", "cancel", "don't", "abort", "stop", "never mind"
-**Ambiguous** (anything else) → ask to clarify, not a confirmation
 
 ---
 
@@ -234,17 +137,17 @@ Always compute the end time from the duration. Default duration: 1 hour.
 
 | gog error | Response |
 |---|---|
-| `missing --account` | "I need a Google account configured. Run `gog auth add your@email.com` first." |
-| `invalid_grant` / token expired | "Your Google session expired — re-authenticate with `gog auth add`." |
+| `missing --account` | "I need a Google account configured." |
+| `invalid_grant` / token expired | Re-auth link (see above) |
 | `quotaExceeded` | "Google Calendar rate limit — try again in a minute." |
 | `notFound` | "That event doesn't exist or was already deleted." |
 | network error | "Couldn't reach Google Calendar — check your connection." |
-| any other non-zero | "Calendar returned an error: [raw message from stderr]." |
 
 ---
 
 ## Notes
 
-- `--dry-run` on create or update validates without making changes — use during testing
-- `--send-updates all` is always required on create and update (never omit it)
-- Never include `--attendees` on `gog calendar update` — it replaces all attendees
+- `--dry-run` on create/update validates without making changes
+- Always `--send-updates all` on create and update
+- Never `--attendees` on update (replaces all attendees)
+- `GOG_ACCOUNT` global env no longer used — always pass `-a {USER_EMAIL}` explicitly

@@ -15,6 +15,26 @@
 # a teammate in a hallway, what you'd do differently next time.
 
 learnings:
+  - date: 2026-05-06
+    cycle: user-google-auth
+    insight: "gog --remote --step 1/2 does NOT work across separate process invocations — gog
+      stores PKCE state in-memory only. Use --manual with a persistent spawned process: step 1
+      prints the URL to stderr, then the process waits on stdin for the callback URL."
+    category: technical
+
+  - date: 2026-05-06
+    cycle: user-google-auth
+    insight: "gog --manual prints the OAuth URL to stderr (not stdout), preceded by 'Visit this URL:'
+      text. URL extraction requires reading both stdout and stderr and using a regex to find the
+      Google OAuth URL, not just reading a clean stdout line."
+    category: technical
+
+  - date: 2026-05-06
+    cycle: user-google-auth
+    insight: "openclaw-multitenant is not available as an npm package. For multi-user agent
+      isolation, use gog's native multi-account support (-a flag per command) + manual
+      openclaw agents add per user. Per-user container automation is a future problem."
+    category: architecture
   - date: 2026-05-05
     cycle: calendar-agent
     insight: "gog calendar update --attendees REPLACES all attendees, not adds to them. Always
