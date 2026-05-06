@@ -338,6 +338,30 @@ Now just type `openclaw-start` to restart the gateway cleanly.
 
 ---
 
+## 22. `gog calendar update --attendees` Silently Wipes Guest List
+
+**What happened:** During the calendar-agent SDD setup phase, we verified exact `gog calendar update` command flags before writing the skill. Discovered that passing `--attendees` during an update **replaces the entire attendee list** — it doesn't append.
+
+**Why it matters:** For a reschedule flow, you only want to change the time. If the skill had blindly passed `--attendees` (even empty), it would silently remove everyone from the meeting every time a user said "reschedule my 3pm to 4pm".
+
+**Wrong approach:**
+```bash
+gog calendar update primary {eventId} --from "new-time" --to "new-time" --attendees ""
+# Wipes ALL attendees from the event
+```
+
+**Correct approach:**
+```bash
+gog calendar update primary {eventId} --from "new-time" --to "new-time" --send-updates all
+# Only time changes — attendees untouched, they get notified automatically
+```
+
+**How it was caught:** SDD Task 1 (verify gog command signatures) runs before any implementation. This discovery phase prevents bugs from being baked into skill files.
+
+**Lesson:** Always verify exact CLI flag behavior before writing skill files. Flags that sound additive (`--attendees`) can be destructive (replace, not append). Read the `--help` output carefully, especially for update/patch operations.
+
+---
+
 ## Summary — Key Environment Gotchas
 
 | Issue | Root Cause | Fix |
@@ -354,3 +378,4 @@ Now just type `openclaw-start` to restart the gateway cleanly.
 | First Discord message fails | claude-cli cold-start (600s) | Send warmup message after gateway start |
 | anthropic harness not registered | Doesn't exist in OpenClaw 2026 | Use claude-cli harness only |
 | Slow/inconsistent agent responses | LLM reasoning from scratch each turn | Add SKILL.md with intent classification table + format templates |
+| gog calendar update wipes attendees | `--attendees` replaces, not appends | Omit `--attendees` on reschedule; use `--add-attendee` to add |
