@@ -10,19 +10,19 @@ Score yourself by ticking each box when it's actually true in your repo. Your on
 
 You have personally run, at least once, and understood the output of:
 
-- [ ] `/lay-of-the-land` — oriented yourself in this repo
-- [ ] `/vkf/init` — bootstrapped your constitution directory
+- [✓] `/lay-of-the-land` — oriented yourself in this repo
+- [✓] `/vkf/init` — bootstrapped your constitution directory
 - [ ] `/vkf/constitution` — drafted a section interactively
-- [ ] `/vkf/validate` — audited your foundation
-- [ ] `/vkf/freshness` — checked at least one spec for staleness
-- [ ] `/vkf/gaps` — surfaced at least one known unknown
+- [✓] `/vkf/validate` — audited your foundation
+- [✓] `/vkf/freshness` — checked at least one spec for staleness
+- [✓] `/vkf/gaps` — surfaced at least one known unknown
 - [ ] `/vkf/amend` — made a C1 or higher amendment on a filled-in constitution file
 - [ ] `/vkf/ingest` — ingested at least one external input (doc, paste, link)
 - [ ] `/sdd:backlog add` — added at least one backlog item
-- [ ] `/sdd:start` — started a cycle (from backlog or directly)
-- [ ] `/sdd:status` — read the state of an active cycle
-- [ ] `/sdd:implement` — executed at least one task
-- [ ] `/sdd:complete` — archived at least one cycle and merged its spec-delta
+- [✓] `/sdd:start` — started a cycle (from backlog or directly)
+- [✓] `/sdd:status` — read the state of an active cycle
+- [✓] `/sdd:implement` — executed at least one task
+- [✓] `/sdd:complete` — archived at least one cycle and merged its spec-delta
 
 ---
 
