@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Omnio — AI Command Center</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a26;
+      --border: rgba(255,255,255,0.08);
+      --accent: #7c6aff;
+      --accent2: #a78bfa;
+      --accent3: #38bdf8;
+      --green: #34d399;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --text: #f1f0ff;
+      --muted: #6b6b8a;
+      --card: rgba(255,255,255,0.04);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      overflow: hidden;
+    }
+
+    .slides { width: 100%; height: 100vh; position: relative; }
+
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      padding: 60px 80px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      transform: translateX(40px);
+    }
+    .slide.active {
+      opacity: 1; pointer-events: all;
+      transform: translateX(0);
+    }
+    .slide.prev {
+      opacity: 0; transform: translateX(-40px);
+    }
+
+    /* Navigation */
+    .nav {
+      position: fixed; bottom: 40px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; align-items: center; gap: 20px;
+      z-index: 100;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 12px 24px;
+    }
+    .nav button {
+      background: none; border: none; cursor: pointer;
+      color: var(--text); font-size: 18px; opacity: 0.6;
+      transition: opacity 0.2s;
+      padding: 4px 8px;
+    }
+    .nav button:hover { opacity: 1; }
+    .slide-counter {
+      font-size: 13px; color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      min-width: 50px; text-align: center;
+    }
+    .progress {
+      position: fixed; top: 0; left: 0;
+      height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent3));
+      transition: width 0.4s ease;
+      z-index: 100;
+    }
+
+    /* Slide number badge */
+    .slide-tag {
+      position: fixed; top: 24px; right: 32px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; color: var(--muted);
+      letter-spacing: 0.1em;
+      z-index: 100;
+    }
+
+    /* Typography */
+    .eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--accent2);
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: clamp(48px, 6vw, 80px);
+      font-weight: 900; line-height: 1.05;
+      background: linear-gradient(135deg, #fff 0%, var(--accent2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h2 {
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 800; line-height: 1.1;
+      background: linear-gradient(135deg, #fff 30%, var(--accent2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+    h3 {
+      font-size: 20px; font-weight: 700; color: var(--text);
+      margin-bottom: 8px;
+    }
+    p { font-size: 17px; line-height: 1.7; color: rgba(255,255,255,0.7); }
+    .lead { font-size: 22px; line-height: 1.6; color: rgba(255,255,255,0.8); max-width: 700px; }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      transition: border-color 0.2s;
+    }
+    .card:hover { border-color: rgba(124,106,255,0.3); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; max-width: 900px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; width: 100%; max-width: 1000px; }
+
+    /* Badge */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 50px;
+      font-size: 12px; font-weight: 600;
+    }
+    .badge-green { background: rgba(52,211,153,0.15); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+    .badge-purple { background: rgba(124,106,255,0.15); color: var(--accent2); border: 1px solid rgba(124,106,255,0.3); }
+    .badge-blue { background: rgba(56,189,248,0.15); color: var(--accent3); border: 1px solid rgba(56,189,248,0.3); }
+    .badge-red { background: rgba(248,113,113,0.15); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+    .badge-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); border: 1px solid rgba(251,191,36,0.3); }
+
+    /* Code block */
+    .code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; line-height: 1.8;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      color: var(--accent2);
+    }
+    .code .comment { color: var(--muted); }
+    .code .arrow { color: var(--accent3); }
+
+    /* Flow chart */
+    .flow {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .flow-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 24px;
+      font-size: 14px; font-weight: 500;
+      min-width: 280px; text-align: center;
+    }
+    .flow-arrow { color: var(--muted); font-size: 18px; }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    td {
+      padding: 12px 16px; font-size: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.8);
+    }
+    tr:last-child td { border-bottom: none; }
+    .td-label { font-weight: 600; color: var(--text); }
+
+    /* Noise background */
+    .slide::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(ellipse at 20% 50%, rgba(124,106,255,0.05) 0%, transparent 60%),
+                        radial-gradient(ellipse at 80% 20%, rgba(56,189,248,0.05) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* Specific slide backgrounds */
+    #slide-1::before {
+      background-image: radial-gradient(ellipse at 30% 40%, rgba(124,106,255,0.15) 0%, transparent 60%),
+                        radial-gradient(ellipse at 70% 60%, rgba(56,189,248,0.1) 0%, transparent 50%);
+    }
+
+    /* Stat number */
+    .stat { font-size: 64px; font-weight: 900; line-height: 1; }
+    .stat-label { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+    /* List */
+    .list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+    .list li {
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 16px; color: rgba(255,255,255,0.8);
+    }
+    .list li::before {
+      content: '→';
+      color: var(--accent); flex-shrink: 0; margin-top: 1px;
+    }
+
+    /* Pill */
+    .pill {
+      display: inline-block;
+      padding: 2px 10px; border-radius: 50px;
+      font-size: 12px; font-weight: 600;
+      background: rgba(124,106,255,0.2); color: var(--accent2);
+    }
+
+    /* Highlight box */
+    .highlight {
+      background: linear-gradient(135deg, rgba(124,106,255,0.1), rgba(56,189,248,0.05));
+      border: 1px solid rgba(124,106,255,0.2);
+      border-radius: 16px;
+      padding: 24px 32px;
+    }
+
+    /* Quote */
+    .quote {
+      font-size: 22px; font-style: italic;
+      color: rgba(255,255,255,0.6);
+      border-left: 3px solid var(--accent);
+      padding-left: 20px;
+    }
+
+    /* Tag row */
+    .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    /* Two col layout */
+    .two-col {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 48px; width: 100%; max-width: 1000px;
+      align-items: start;
+    }
+
+    .content-stack {
+      display: flex; flex-direction: column;
+      gap: 20px; width: 100%; max-width: 900px;
+    }
+
+    /* Divider */
+    .divider { width: 48px; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent3)); border-radius: 2px; margin: 16px 0; }
+
+    /* Keyboard shortcut hint */
+    .hint {
+      position: fixed; top: 24px; left: 32px;
+      font-size: 11px; color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="hint">← → to navigate</div>
+<div class="slide-tag" id="slideTag">01 / 14</div>
+
+<div class="slides" id="slides">
+
+  <!-- SLIDE 1: TITLE -->
+  <div class="slide active" id="slide-1">
+    <div style="text-align:center; max-width:800px;">
+      <div class="eyebrow">Spec Squad 01 — Demo Day 2026</div>
+      <h1 style="font-size:clamp(64px,8vw,100px); margin-bottom:20px;">Omnio</h1>
+      <div class="divider" style="margin:0 auto 24px;"></div>
+      <p class="lead" style="text-align:center;">Your AI-powered work assistant.<br/>Gmail, Calendar, Meet — all from a single Discord DM.</p>
+      <div style="margin-top:40px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <span class="badge badge-purple">OpenClaw</span>
+        <span class="badge badge-blue">Discord Bot API</span>
+        <span class="badge badge-green">Claude Sonnet 4.6</span>
+        <span class="badge badge-yellow">gog CLI</span>
+      </div>
+      <p style="margin-top:48px; font-size:14px; color:var(--muted);">Bilal Haneef · Disrupt Labs</p>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: PROBLEM -->
+  <div class="slide" id="slide-2">
+    <div style="max-width:900px; width:100%;">
+      <div class="eyebrow">The Problem</div>
+      <h2>You lose 45+ minutes a day<br/>switching between apps</h2>
+      <div class="divider"></div>
+      <div class="grid-3" style="margin-top:32px;">
+        <div class="card" style="text-align:center;">
+          <div class="stat" style="color:var(--red);">3</div>
+          <div class="stat-label">Apps to do 1 task</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="stat" style="color:var(--yellow);">45+</div>
+          <div class="stat-label">Minutes lost daily</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div class="stat" style="color:var(--accent2);">∞</div>
+          <div class="stat-label">Context switches</div>
+        </div>
+      </div>
+      <div class="highlight" style="margin-top:28px;">
+        <p style="font-size:15px; color:rgba(255,255,255,0.7);">
+          Open Gmail → read email → switch to Calendar → schedule meeting → open Meet → copy link → paste in email → send.<br/>
+          <strong style="color:var(--text);">Every. Single. Day.</strong>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: SOLUTION -->
+  <div class="slide" id="slide-3">
+    <div style="max-width:900px; width:100%;">
+      <div class="eyebrow">The Solution</div>
+      <h2>One Discord DM.<br/>Everything handled.</h2>
+      <div class="divider"></div>
+      <div class="content-stack" style="margin-top:28px;">
+        <div class="card" style="display:flex; align-items:center; gap:16px;">
+          <span style="font-size:28px;">📧</span>
+          <div>
+            <div class="code" style="background:none; border:none; padding:0; font-size:16px; color:var(--text);">"Check my emails and reply to Salman saying I'll be there"</div>
+          </div>
+        </div>
+        <div class="card" style="display:flex; align-items:center; gap:16px;">
+          <span style="font-size:28px;">📅</span>
+          <div>
+            <div class="code" style="background:none; border:none; padding:0; font-size:16px; color:var(--text);">"Reschedule my 3pm meeting with Nameer to tomorrow 4pm"</div>
+          </div>
+        </div>
+        <div class="card" style="display:flex; align-items:center; gap:16px;">
+          <span style="font-size:28px;">🎯</span>
+          <div>
+            <div class="code" style="background:none; border:none; padding:0; font-size:16px; color:var(--text);">"Create a meeting with Haseeb at 5pm, add a Google Meet link"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: HOW OPENCLAW WORKS -->
+  <div class="slide" id="slide-4">
+    <div style="max-width:1000px; width:100%;">
+      <div class="eyebrow">Under The Hood</div>
+      <h2>How OpenClaw Works</h2>
+      <div class="divider"></div>
+      <div class="two-col" style="margin-top:28px;">
+        <div>
+          <p style="margin-bottom:20px; font-size:15px;">OpenClaw is an open-source, self-hosted AI agent framework — the operating system that runs intelligent agents on your own machine.</p>
+          <ul class="list">
+            <li>Each agent has a <strong>SKILL.md</strong> — plain Markdown instructions defining behavior</li>
+            <li>Multiple specialist agents run in parallel, each owning their domain</li>
+            <li>All data stays on your machine — nothing reaches a third party</li>
+            <li>3,700+ community skills available on ClawHub</li>
+          </ul>
+        </div>
+        <div class="flow">
+          <div class="flow-item" style="border-color:rgba(124,106,255,0.4); color:var(--accent2);">Discord DM</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">OpenClaw Gateway</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item">Orchestrator Agent (Claude)</div>
+          <div class="flow-arrow" style="display:flex; gap:32px;">↙&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↘</div>
+          <div style="display:flex; gap:12px;">
+            <div class="flow-item" style="min-width:auto; padding:8px 16px; font-size:13px; border-color:rgba(52,211,153,0.3);">Email Agent</div>
+            <div class="flow-item" style="min-width:auto; padding:8px 16px; font-size:13px; border-color:rgba(56,189,248,0.3);">Calendar Agent</div>
+          </div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-item" style="font-size:13px; color:var(--muted);">Gmail · Calendar · Meet APIs</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: DEMO -->
+  <div class="slide" id="slide-5">
+    <div style="text-align:center; max-width:700px;">
+      <div class="eyebrow">Live Demonstration</div>
+      <h2>See It In Action</h2>
+      <div class="divider" style="margin:16px auto 32px;"></div>
+      <div class="grid-2" style="margin-bottom:32px;">
+        <div class="card" style="text-align:left;">
+          <div style="font-size:24px; margin-bottom:8px;">📧</div>
+          <h3>Email Flow</h3>
+          <p style="font-size:14px;">Read → Draft → Confirm → Send</p>
+        </div>
+        <div class="card" style="text-align:left;">
+          <div style="font-size:24px; margin-bottom:8px;">📅</div>
+          <h3>Calendar Flow</h3>
+          <p style="font-size:14px;">View → Create → Reschedule</p>
+        </div>
+        <div class="card" style="text-align:left;">
+          <div style="font-size:24px; margin-bottom:8px;">🔗</div>
+          <h3>Meet Links</h3>
+          <p style="font-size:14px;">Auto-attached on creation</p>
+        </div>
+        <div class="card" style="text-align:left;">
+          <div style="font-size:24px; margin-bottom:8px;">👤</div>
+          <h3>Contact Lookup</h3>
+          <p style="font-size:14px;">Find colleagues by name</p>
+        </div>
+      </div>
+      <div class="highlight">
+        <p style="font-size:15px;">Every action requires <strong>explicit user confirmation</strong> before executing. Nothing sends without a "yes".</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: HOW IT WAS BUILT -->
+  <div class="slide" id="slide-6">
+    <div style="max-width:900px; width:100%;">
+      <div class="eyebrow">Engineering Process</div>
+      <h2>Built with Spec-Driven<br/>Development</h2>
+      <div class="divider"></div>
+      <p style="margin-bottom:24px; font-size:15px; color:rgba(255,255,255,0.6);">4 SDD cycles shipped in 7 days. Every feature: spec first → implement → archive.</p>
+      <div class="content-stack">
+        <div class="card" style="display:flex; align-items:center; gap:16px;">
+          <span class="badge badge-green">✓ Done</span>
+          <div><strong>email-agent</strong> <span style="color:var(--muted); font-size:13px; margin-left:8px;">Read, draft, confirm, send · 30 tasks</span></div>
+        </div>
+        <div class="card" style="display:flex; align-items:center; gap:16px;">
+          <span class="badge badge-green">✓ Done</span>
+          <div><strong>calendar-agent</strong> <span style="color:var(--muted); font-size:13px; margin-left:8px;">Create, reschedule, Meet links · 25 tasks</span></div>
+        </div>
+        <div class="card" style="display:flex; align-items:center; gap:16px;">
+          <span class="badge badge-green">✓ Done</span>
+          <div><strong>user-google-auth</strong> <span style="color:var(--muted); font-size:13px; margin-left:8px;">OAuth onboarding flow · 22 tasks</span></div>
+        </div>
+        <div class="card" style="display:flex; align-items:center; gap:16px;">
+          <span class="badge badge-green">✓ Done</span>
+          <div><strong>contact-lookup</strong> <span style="color:var(--muted); font-size:13px; margin-left:8px;">Directory search by name · 11 tasks</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: CURRENTLY 3 TOOLS -->
+  <div class="slide" id="slide-7">
+    <div style="max-width:1000px; width:100%;">
+      <div class="eyebrow">Extensibility</div>
+      <h2>Currently 3 Tools.<br/>Can connect anything.</h2>
+      <div class="divider"></div>
+      <div class="two-col" style="margin-top:24px;">
+        <div>
+          <p style="font-size:14px; color:var(--muted); margin-bottom:16px;">TODAY</p>
+          <div class="tags" style="margin-bottom:24px;">
+            <span class="badge badge-green">Gmail</span>
+            <span class="badge badge-green">Google Calendar</span>
+            <span class="badge badge-green">Google Meet</span>
+          </div>
+          <p style="font-size:14px; color:var(--muted); margin-bottom:16px;">COMING NEXT</p>
+          <div class="tags">
+            <span class="badge badge-purple">Slack</span>
+            <span class="badge badge-purple">Notion</span>
+            <span class="badge badge-purple">GitHub</span>
+            <span class="badge badge-purple">Jira</span>
+            <span class="badge badge-purple">Instagram</span>
+            <span class="badge badge-purple">LinkedIn</span>
+            <span class="badge badge-purple">X / Reddit</span>
+            <span class="badge badge-purple">Pinterest</span>
+          </div>
+        </div>
+        <div class="content-stack">
+          <div class="card">
+            <p style="font-size:12px; color:var(--accent2); font-weight:600; letter-spacing:0.1em; margin-bottom:8px;">MARKETING TEAM</p>
+            <p style="font-size:14px;">"Post this image and caption on Instagram, LinkedIn, X, Reddit, and Pinterest"</p>
+          </div>
+          <div class="card">
+            <p style="font-size:12px; color:var(--accent3); font-weight:600; letter-spacing:0.1em; margin-bottom:8px;">SALES TEAM</p>
+            <p style="font-size:14px;">"Draft follow-up emails to all leads from last week"</p>
+          </div>
+          <div class="card">
+            <p style="font-size:12px; color:var(--green); font-weight:600; letter-spacing:0.1em; margin-bottom:8px;">ENGINEERING</p>
+            <p style="font-size:14px;">"Summarize all open PRs that need review"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: INTERNAL DEPLOYMENT -->
+  <div class="slide" id="slide-8">
+    <div style="max-width:900px; width:100%;">
+      <div class="eyebrow">Vision</div>
+      <h2>Deploy Omnio Internally<br/>at Disrupt Labs</h2>
+      <div class="divider"></div>
+      <div class="two-col" style="margin-top:28px;">
+        <div class="content-stack">
+          <div class="card">
+            <h3>Every employee gets access</h3>
+            <p style="font-size:14px;">Connect their own Gmail, Calendar, Slack, Notion, GitHub — all from Discord DM.</p>
+          </div>
+          <div class="card">
+            <h3>No training needed</h3>
+            <p style="font-size:14px;">If you can type a message, you can use it. Natural language only.</p>
+          </div>
+          <div class="card">
+            <h3>Data stays in-house</h3>
+            <p style="font-size:14px;">Self-hosted on company servers. No data leaves your infrastructure.</p>
+          </div>
+        </div>
+        <div>
+          <div class="highlight" style="margin-bottom:20px;">
+            <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">THE ROADMAP</p>
+            <ul class="list">
+              <li style="font-size:14px;">POC → Internal Product</li>
+              <li style="font-size:14px;">Internal Product → SaaS</li>
+              <li style="font-size:14px;">SaaS → Platform</li>
+            </ul>
+          </div>
+          <div class="card">
+            <p style="font-size:13px; color:var(--muted); margin-bottom:8px;">MARKETING USE CASE</p>
+            <p style="font-size:14px; font-style:italic;">"Here's this week's campaign post — upload to all channels"</p>
+            <p style="font-size:13px; color:var(--green); margin-top:8px;">One message → 8 platforms posted ✓</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: SINGLE USER LIMITATION -->
+  <div class="slide" id="slide-9">
+    <div style="max-width:900px; width:100%;">
+      <div class="eyebrow">Current Limitation</div>
+      <h2>Single User Today.<br/>Multi-User Tomorrow.</h2>
+      <div class="divider"></div>
+      <div class="two-col" style="margin-top:28px;">
+        <div>
+          <div class="card" style="border-color:rgba(251,191,36,0.3); margin-bottom:16px;">
+            <p style="font-size:12px; color:var(--yellow); font-weight:600; letter-spacing:0.1em; margin-bottom:8px;">NOW — STANDARD OPENCLAW</p>
+            <p style="font-size:14px;">One workspace, one user. All agents share the same memory and credentials. Multi-user causes data bleed.</p>
+          </div>
+          <div class="card" style="border-color:rgba(52,211,153,0.3);">
+            <p style="font-size:12px; color:var(--green); font-weight:600; letter-spacing:0.1em; margin-bottom:8px;">NEXT — OPENCLAW MULTITENANT</p>
+            <p style="font-size:14px;">Per-user isolated containers. Each user has their own Google token, memory, and session. Deploy once, onboard unlimited users.</p>
+          </div>
+        </div>
+        <div>
+          <div class="code">
+            <span class="comment"># Standard OpenClaw</span><br/>
+            user_A → workspace/<br/>
+            user_B → workspace/ <span class="comment"># same! ❌</span><br/><br/>
+            <span class="comment"># Multitenant</span><br/>
+            user_A → containers/A/ <span style="color:var(--green);">✓</span><br/>
+            user_B → containers/B/ <span style="color:var(--green);">✓</span><br/>
+            user_C → containers/C/ <span style="color:var(--green);">✓</span>
+          </div>
+          <p style="font-size:13px; color:var(--muted); margin-top:16px;">Agent logic, skills, and workflows stay exactly the same. Only the infrastructure layer changes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: WHATSAPP STORY -->
+  <div class="slide" id="slide-10">
+    <div style="max-width:900px; width:100%;">
+      <div class="eyebrow">Technical Decision</div>
+      <h2>Why We Moved from<br/>WhatsApp to Discord</h2>
+      <div class="divider"></div>
+      <div style="margin-top:24px;">
+        <table style="margin-bottom:24px;">
+          <thead>
+            <tr>
+              <th>Approach</th>
+              <th>Cost</th>
+              <th>Legal</th>
+              <th>Reliability</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-label">WhatsApp Business API</td>
+              <td>$0.01–0.08/msg</td>
+              <td><span class="badge badge-green">✓ Legal</span></td>
+              <td><span class="badge badge-green">Stable</span></td>
+              <td style="color:var(--muted);">Post-POC</td>
+            </tr>
+            <tr>
+              <td class="td-label">Baileys Protocol</td>
+              <td>Free</td>
+              <td><span class="badge badge-red">⚠ Illegal</span></td>
+              <td><span class="badge badge-red">Unreliable</span></td>
+              <td style="color:var(--red);">Dropped</td>
+            </tr>
+            <tr>
+              <td class="td-label" style="color:var(--accent2);">Discord Bot API</td>
+              <td>Free</td>
+              <td><span class="badge badge-green">✓ Legal</span></td>
+              <td><span class="badge badge-green">Stable</span></td>
+              <td style="color:var(--green);">✓ Current</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="highlight">
+          <p style="font-size:14px;">We started with Baileys (OpenClaw's built-in WhatsApp support). WhatsApp detected the automation, blocked connections, and dropped replies. We switched to the official Discord Bot API — free, stable persistent WebSocket, zero ban risk. For production with real users, the WhatsApp Business API is the right path.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: TECH STACK -->
+  <div class="slide" id="slide-11">
+    <div style="max-width:900px; width:100%;">
+      <div class="eyebrow">Engineering</div>
+      <h2>Tech Stack</h2>
+      <div class="divider"></div>
+      <div class="grid-2" style="margin-top:28px;">
+        <div class="card">
+          <p style="font-size:11px; color:var(--muted); letter-spacing:0.1em; margin-bottom:12px;">AI LAYER</p>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:14px;">AI Brain</span>
+              <span class="pill">Claude Sonnet 4.6</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:14px;">Agent Framework</span>
+              <span class="pill">OpenClaw v2026</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:14px;">Runtime</span>
+              <span class="pill">Node.js 22</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <p style="font-size:11px; color:var(--muted); letter-spacing:0.1em; margin-bottom:12px;">INTEGRATIONS</p>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:14px;">Messaging</span>
+              <span class="pill">Discord Bot API</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:14px;">Google CLI</span>
+              <span class="pill">gog v0.14.0</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:14px;">APIs</span>
+              <span class="pill">Gmail · Calendar · Meet</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <p style="font-size:11px; color:var(--muted); letter-spacing:0.1em; margin-bottom:12px;">PROCESS</p>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:14px;">Feature Process</span>
+              <span class="pill">SDD (STD-001)</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:14px;">Knowledge</span>
+              <span class="pill">VKF (STD-002)</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <p style="font-size:11px; color:var(--muted); letter-spacing:0.1em; margin-bottom:12px;">NUMBERS</p>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:14px;">SDD Cycles</span>
+              <span class="pill">4 shipped</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:14px;">Learnings</span>
+              <span class="pill">23 documented</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:14px;">Timeline</span>
+              <span class="pill">7 days</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: LEARNINGS -->
+  <div class="slide" id="slide-12">
+    <div style="max-width:900px; width:100%;">
+      <div class="eyebrow">Key Takeaways</div>
+      <h2>What I Learned</h2>
+      <div class="divider"></div>
+      <div class="grid-2" style="margin-top:28px;">
+        <div class="card">
+          <h3>Prompt engineering > code</h3>
+          <p style="font-size:14px;">SKILL.md files in plain Markdown define agent behavior more reliably than traditional code for AI workflows.</p>
+        </div>
+        <div class="card">
+          <h3>Spec before implementation</h3>
+          <p style="font-size:14px;">SDD caught the gog attendee-wipe bug before it shipped. Spec first saves debugging time later.</p>
+        </div>
+        <div class="card">
+          <h3>Verify before speccing</h3>
+          <p style="font-size:14px;">gog --remote state is in-memory only — discovered during validation, not design. Always run the command first.</p>
+        </div>
+        <div class="card">
+          <h3>Official APIs > unofficial</h3>
+          <p style="font-size:14px;">Discord Bot API is free, stable, legal. Baileys WhatsApp isn't. Choose reliability over convenience.</p>
+        </div>
+      </div>
+      <p style="margin-top:20px; font-size:13px; color:var(--muted); text-align:center;">23 learnings documented in LEARNINGS.md · github.com/BilalHaneefQ/dl-onboarding</p>
+    </div>
+  </div>
+
+  <!-- SLIDE 13: NEXT -->
+  <div class="slide" id="slide-13">
+    <div style="max-width:900px; width:100%;">
+      <div class="eyebrow">Roadmap</div>
+      <h2>What's Next</h2>
+      <div class="divider"></div>
+      <div class="grid-3" style="margin-top:32px;">
+        <div class="card" style="text-align:center;">
+          <div style="font-size:32px; margin-bottom:12px;">🖥️</div>
+          <h3>VPS Deployment</h3>
+          <p style="font-size:14px;">Always-on server. No laptop required.</p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:32px; margin-bottom:12px;">👥</div>
+          <h3>Multi-User</h3>
+          <p style="font-size:14px;">openclaw-multitenant for per-user isolation.</p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:32px; margin-bottom:12px;">📱</div>
+          <h3>Social Media Agent</h3>
+          <p style="font-size:14px;">Post to 8 platforms from one message.</p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:32px; margin-bottom:12px;">💬</div>
+          <h3>WhatsApp Business</h3>
+          <p style="font-size:14px;">Official API for company-wide rollout.</p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:32px; margin-bottom:12px;">🔗</div>
+          <h3>More Integrations</h3>
+          <p style="font-size:14px;">Slack, Notion, GitHub, Jira, and more.</p>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:32px; margin-bottom:12px;">🏢</div>
+          <h3>Internal SaaS</h3>
+          <p style="font-size:14px;">Deploy to all of Disrupt Labs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 14: THANK YOU -->
+  <div class="slide" id="slide-14">
+    <div style="text-align:center; max-width:700px;">
+      <div class="eyebrow">Thank You</div>
+      <h1 style="font-size:clamp(48px,6vw,72px); margin-bottom:16px;">Omnio</h1>
+      <div class="divider" style="margin:0 auto 28px;"></div>
+      <p class="quote" style="margin-bottom:32px; text-align:left;">
+        "The best assistant is the one that's already where you are."
+      </p>
+      <div class="highlight" style="margin-bottom:32px;">
+        <p style="font-size:15px; font-family:'JetBrains Mono', monospace; color:var(--accent2);">
+          github.com/BilalHaneefQ/dl-onboarding
+        </p>
+      </div>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+        <span class="badge badge-green">Gmail ✓</span>
+        <span class="badge badge-green">Calendar ✓</span>
+        <span class="badge badge-green">Meet ✓</span>
+        <span class="badge badge-green">Contact Lookup ✓</span>
+        <span class="badge badge-green">OAuth Flow ✓</span>
+      </div>
+      <p style="margin-top:40px; font-size:13px; color:var(--muted);">Bilal Haneef · Disrupt Labs · May 2026</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="nav">
+  <button onclick="prevSlide()">←</button>
+  <span class="slide-counter" id="counter">1 / 14</span>
+  <button onclick="nextSlide()">→</button>
+</div>
+
+<script>
+  const totalSlides = 14;
+  let current = 1;
+  let prev = null;
+
+  function goTo(n) {
+    const oldSlide = document.getElementById('slide-' + current);
+    oldSlide.classList.remove('active');
+    oldSlide.classList.add('prev');
+    setTimeout(() => oldSlide.classList.remove('prev'), 500);
+
+    current = Math.max(1, Math.min(n, totalSlides));
+
+    const newSlide = document.getElementById('slide-' + current);
+    newSlide.classList.add('active');
+
+    document.getElementById('counter').textContent = current + ' / ' + totalSlides;
+    document.getElementById('slideTag').textContent = String(current).padStart(2,'0') + ' / ' + String(totalSlides).padStart(2,'0');
+    document.getElementById('progress').style.width = (current / totalSlides * 100) + '%';
+  }
+
+  function nextSlide() { goTo(current + 1); }
+  function prevSlide() { goTo(current - 1); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSlide();
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevSlide();
+  });
+
+  // Touch support
+  let touchX = 0;
+  document.addEventListener('touchstart', e => touchX = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const diff = touchX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) diff > 0 ? nextSlide() : prevSlide();
+  });
+
+  // Init progress
+  document.getElementById('progress').style.width = (1 / totalSlides * 100) + '%';
+</script>
+</body>
+</html>
